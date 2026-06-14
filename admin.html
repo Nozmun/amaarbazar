@@ -8,7 +8,7 @@
 <meta name="description" content="AmaarBazaar Administrator Dashboard">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="stylesheet" href="css/admin.css?v=2">
+<link rel="stylesheet" href="css/admin.css?v=3">
 </head>
 <body>
 
@@ -32,6 +32,7 @@
       <h3>AmaarBazaar Admin</h3>
     </div>
     <ul class="admin-nav__menu">
+      <li><a href="index.html" class="nav-link nav-link--site">← View Site / Home</a></li>
       <li><a href="#" data-action="section" data-section="stats" class="nav-link active">Dashboard</a></li>
       <li><a href="#" data-action="section" data-section="users" class="nav-link">User Management</a></li>
       <li><a href="#" data-action="section" data-section="listings" class="nav-link">Manage Listings</a></li>
@@ -69,6 +70,9 @@
     <!-- Listings Section -->
     <section id="listings" class="section hidden">
       <h2>Manage Listings</h2>
+      <div class="user-actions">
+        <button class="btn btn-primary" data-action="addListing">+ Add Listing</button>
+      </div>
       <table class="table">
         <thead>
           <tr>
@@ -76,7 +80,7 @@
             <th>Title</th>
             <th>Category</th>
             <th>Price</th>
-            <th>Status</th>
+            <th>Location</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -176,6 +180,7 @@
           <option value="category_edit">Edit Category</option>
           <option value="settings_change">Change Settings</option>
         </select>
+        <button class="btn btn-primary" data-action="addAuditNote">+ Add Note</button>
         <button class="btn btn-secondary" data-action="clearAudit">Clear Log</button>
       </div>
       <table class="table">
@@ -187,6 +192,7 @@
             <th>Details</th>
             <th>IP Address</th>
             <th>Status</th>
+            <th>Manage</th>
           </tr>
         </thead>
         <tbody id="auditTable">
@@ -209,7 +215,54 @@
   </main>
 </div>
 
-<script src="js/data.js?v=2"></script>
-<script src="js/admin.js?v=2"></script>
+    <!-- Create/Edit Listing Modal -->
+    <div id="listingModal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <h3 id="listingModalTitle">Add Listing</h3>
+        <form id="listingForm">
+          <input type="hidden" id="listingId">
+          <label>Title</label>
+          <input type="text" id="listingTitle" placeholder="e.g. Toyota Allion 2016" required>
+          <label>Category</label>
+          <select id="listingCat" required></select>
+          <label>Price (৳)</label>
+          <input type="number" id="listingPrice" min="0" placeholder="0" required>
+          <label>Location</label>
+          <input type="text" id="listingLoc" placeholder="e.g. Gulshan, Dhaka" required>
+          <label><input type="checkbox" id="listingFeatured"> Featured listing</label>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Save Listing</button>
+            <button type="button" class="btn btn-secondary" data-action="closeListing">Cancel</button>
+          </div>
+          <p id="listingError" class="error"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Create/Edit Category Modal -->
+    <div id="catModal" class="modal-overlay hidden">
+      <div class="modal-panel">
+        <h3 id="catModalTitle">Add Category</h3>
+        <form id="catForm">
+          <input type="hidden" id="catId">
+          <label>Name</label>
+          <input type="text" id="catName" placeholder="e.g. Electric Scooters" required>
+          <label>Icon (emoji)</label>
+          <input type="text" id="catIcon" placeholder="🛴" maxlength="4">
+          <label>Group</label>
+          <select id="catGroup" required></select>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Save Category</button>
+            <button type="button" class="btn btn-secondary" data-action="closeCat">Cancel</button>
+          </div>
+          <p id="catError" class="error"></p>
+        </form>
+      </div>
+    </div>
+
+<script src="js/i18n.js?v=3"></script>
+<script src="js/data.js?v=3"></script>
+<script src="js/store.js?v=3"></script>
+<script src="js/admin.js?v=3"></script>
 </body>
 </html>

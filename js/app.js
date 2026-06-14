@@ -3,6 +3,8 @@
   'use strict';
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+  const t = (key, fb) => { const v = I18nStore.get(key); return (v && v !== key) ? v : fb; };
+  let pendingPost = null;
 
   /* ---- language toggle ---- */
   function initLang(){
@@ -11,25 +13,27 @@
       btn.addEventListener('click', () => I18nStore.toggle()));
   }
 
-  /* ---- populate category dropdowns ---- */
+  /* ---- populate category dropdowns (from Store) ---- */
   function populateCategorySelects(){
-    const selects = ['#fCat', '#postCat'];
-    selects.forEach(selector => {
+    const groups = (window.Store ? Store.getGroups() : (typeof CATEGORY_GROUPS!=='undefined'?CATEGORY_GROUPS:[]));
+    ['#fCat', '#postCat'].forEach(selector => {
       const select = $(selector);
       if(!select) return;
+      const prev = select.value;
       select.innerHTML = `<option value="" data-i18n="browse.all">${I18nStore.get('browse.all')}</option>`;
-      CATEGORY_GROUPS.forEach(group => {
+      groups.forEach(group => {
         const optgroup = document.createElement('optgroup');
-        optgroup.label = I18nStore.get(group.key);
+        optgroup.label = I18nStore.get(group.key) !== group.key ? I18nStore.get(group.key) : group.group;
         group.categories.forEach(cat => {
           const option = document.createElement('option');
           option.value = cat.id;
-          option.textContent = I18nStore.get(cat.key);
-          option.setAttribute('data-i18n', cat.key);
+          option.textContent = Store ? Store.catName(cat) : (I18nStore.get(cat.key)||cat.id);
+          if(cat.key) option.setAttribute('data-i18n', cat.key);
           optgroup.appendChild(option);
         });
         select.appendChild(optgroup);
       });
+      if(prev) select.value = prev;
     });
   }
 
@@ -90,13 +94,17 @@
   };
   const slug = (k) => k.split('.')[1];
 
+  function GROUPS(){ return window.Store ? Store.getGroups() : (typeof CATEGORY_GROUPS!=='undefined'?CATEGORY_GROUPS:[]); }
+  function catLabel(c){ return window.Store ? Store.catName(c) : (I18nStore.get(c.key)||c.id); }
+
   /* ---- Gumtree-style homepage browser: left rail + flyout + ad ---- */
   let activeGroup = 0;
   function renderCatBrowser(){
     const rail = $('#catRail'), panel = $('#catPanel');
     if(!rail || !panel) return;
+    const groups = GROUPS();
 
-    rail.innerHTML = CATEGORY_GROUPS.map((g, i) => `
+    rail.innerHTML = groups.map((g, i) => `
       <button class="cat-rail__item${i===activeGroup?' active':''}" data-group="${i}" type="button">
         <span class="ic">${GROUP_ICON[g.key]||'📦'}</span>
         <span data-i18n="${g.key}">${I18nStore.get(g.key)}</span>
@@ -104,17 +112,17 @@
       </button>`).join('');
 
     function paint(i){
-      const g = CATEGORY_GROUPS[i];
+      const g = groups[i];
       panel.innerHTML = `
         <div class="cat-panel__head">
-          <div class="cat-panel__title" data-i18n="${g.key}">${I18nStore.get(g.key)}</div>
+          <div class="cat-panel__title">${I18nStore.get(g.key)!==g.key?I18nStore.get(g.key):g.group}</div>
           <a href="browse.html?group=${slug(g.key)}" class="cat-panel__all">${I18nStore.get('cat.viewall')} ›</a>
         </div>
         <div class="cat-panel__grid">
           ${g.categories.map((c, idx) => `
             <a href="browse.html?cat=${c.id}" class="cat-flink" style="--i:${idx}">
-              <span class="ic">${c.icon}</span>
-              <span data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
+              <span class="ic">${c.icon||'•'}</span>
+              <span>${catLabel(c)}</span>
             </a>`).join('')}
         </div>`;
     }
@@ -138,16 +146,16 @@
     const mega = $('#megaPanel'); if(!mega) return;
     mega.innerHTML = `
       <div class="mega__grid">
-        ${CATEGORY_GROUPS.map(g => `
+        ${GROUPS().map(g => `
           <div class="mega__group">
             <a class="mega__group-title" href="browse.html?group=${slug(g.key)}">
               <span>${GROUP_ICON[g.key]||'📦'}</span>
-              <span data-i18n="${g.key}">${I18nStore.get(g.key)}</span>
+              <span>${I18nStore.get(g.key)!==g.key?I18nStore.get(g.key):g.group}</span>
             </a>
             ${g.categories.slice(0,6).map(c => `
               <a href="browse.html?cat=${c.id}" class="mega__link">
-                <span class="ic">${c.icon}</span>
-                <span data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
+                <span class="ic">${c.icon||'•'}</span>
+                <span>${catLabel(c)}</span>
               </a>`).join('')}
             ${g.categories.length>6 ? `<a href="browse.html?group=${slug(g.key)}" class="mega__link" style="color:var(--green)">+${g.categories.length-6} ${I18nStore.get('cat.more')||'more'}</a>`:''}
           </div>`).join('')}
@@ -200,8 +208,11 @@
   /* ---- featured on homepage ---- */
   function renderFeatured(){
     const grid = $('#featGrid'); if(!grid) return;
-    const items = LISTINGS.filter(l => l.featured).concat(LISTINGS.filter(l=>!l.featured)).slice(0,8);
-    grid.innerHTML = items.map(cardHTML).join('');
+    const all = window.Store ? Store.getListings() : (typeof LISTINGS!=='undefined'?LISTINGS:[]);
+    const featured = all.filter(l => l.featured);
+    const items = featured.concat(all.filter(l=>!l.featured)).slice(0, 8);
+    grid.innerHTML = items.length ? items.map(cardHTML).join('')
+      : `<div class="browse-empty">${I18nStore.get('browse.empty')||'No listings yet.'}</div>`;
     wireCards(grid);
   }
 
@@ -211,15 +222,19 @@
     const params = new URLSearchParams(location.search);
     const f = {
       cat: params.get('cat') || '',
+      group: params.get('group') || '',
       q: (params.get('q') || '').toLowerCase(),
-      min: 0, max: Infinity, loc: '', sort: 'new'
+      min: 0, max: Infinity, loc: (params.get('loc') || '').toLowerCase(), sort: 'new'
     };
     const catSel = $('#fCat'), minI = $('#fMin'), maxI = $('#fMax'), locI = $('#fLoc'), sortSel = $('#fSort');
     if(catSel && f.cat) catSel.value = f.cat;
+    if(locI && f.loc) locI.value = params.get('loc');
 
     function render(){
-      let items = LISTINGS.filter(l => {
+      const data = window.Store ? Store.getListings() : (typeof LISTINGS!=='undefined'?LISTINGS:[]);
+      let items = data.filter(l => {
         if(f.cat && l.cat !== f.cat) return false;
+        if(f.group){ const g = l.group || (window.Store && Store.findGroupOfCat(l.cat)); if(g !== f.group) return false; }
         if(f.q){ const hay = (l.title.en+' '+l.title.bn+' '+l.loc.en+' '+l.loc.bn).toLowerCase(); if(!hay.includes(f.q)) return false; }
         if(l.price < f.min || l.price > f.max) return false;
         if(f.loc){ const hay = (l.loc.en+' '+l.loc.bn).toLowerCase(); if(!hay.includes(f.loc)) return false; }
@@ -236,15 +251,16 @@
       wireCards(grid);
     }
     $('#applyFilters')?.addEventListener('click', () => {
-      f.cat = catSel.value; f.min = +minI.value||0; f.max = +maxI.value||Infinity;
+      f.cat = catSel.value; f.group = ''; f.min = +minI.value||0; f.max = +maxI.value||Infinity;
       f.loc = (locI.value||'').toLowerCase(); f.sort = sortSel.value; render();
     });
     $('#resetFilters')?.addEventListener('click', () => {
       catSel.value=''; minI.value=''; maxI.value=''; locI.value=''; sortSel.value='new';
-      f.cat=f.loc=''; f.min=0; f.max=Infinity; f.sort='new'; render();
+      f.cat=f.loc=f.group=''; f.min=0; f.max=Infinity; f.sort='new'; render();
     });
     sortSel?.addEventListener('change', () => { f.sort = sortSel.value; render(); });
     document.addEventListener('langchange', render);
+    if(window.Store) Store.on(render);
     render();
   }
 
@@ -254,23 +270,125 @@
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const q = $('#heroQuery').value.trim();
-      location.href = 'browse.html' + (q ? ('?q='+encodeURIComponent(q)) : '');
+      const loc = ($('#heroLoc')?.value||'').trim();
+      const params = new URLSearchParams();
+      if(q) params.set('q', q);
+      if(loc && !/^all\b/i.test(loc)) params.set('loc', loc);
+      const qs = params.toString();
+      location.href = 'browse.html' + (qs ? ('?'+qs) : '');
     });
   }
 
-  /* ---- post page tiers ---- */
+  /* ---- geolocation + city picker (shared) ---- */
+  function nearestCity(lat,lng){
+    if(typeof BD_CITY_COORDS === 'undefined') return 'Dhaka';
+    let best='Dhaka', bd=Infinity;
+    Object.keys(BD_CITY_COORDS).forEach(city => {
+      const [clat,clng]=BD_CITY_COORDS[city];
+      const d=(clat-lat)*(clat-lat)+(clng-lng)*(clng-lng);
+      if(d<bd){ bd=d; best=city; }
+    });
+    return best;
+  }
+  function initGeo(){
+    if(typeof BD_CITIES !== 'undefined' && !$('#cityList')){
+      const dl=document.createElement('datalist'); dl.id='cityList';
+      dl.innerHTML = BD_CITIES.map(c=>`<option value="${c}"></option>`).join('');
+      document.body.appendChild(dl);
+    }
+    $$('[data-citylist]').forEach(inp => inp.setAttribute('list','cityList'));
+    $$('[data-geo]').forEach(btn => btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const target = btn.dataset.target ? $(btn.dataset.target) : null;
+      if(!('geolocation' in navigator)){ toast(t('geo.unsupported','Location not supported here.')); return; }
+      btn.classList.add('is-loading'); btn.disabled = true;
+      navigator.geolocation.getCurrentPosition(pos => {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+        const city = nearestCity(pos.coords.latitude, pos.coords.longitude);
+        if(target){ target.value = city; target.dispatchEvent(new Event('input',{bubbles:true})); }
+        toast(t('geo.found','Nearest city: ')+city);
+      }, () => {
+        btn.classList.remove('is-loading'); btn.disabled = false;
+        toast(t('geo.denied','Couldn’t detect location — pick a city.'));
+      }, { timeout: 8000, enableHighAccuracy:false });
+    }));
+  }
+
+  /* ---- post page ---- */
   const TIER_PRICE = { free:0, featured:299, premium:599 };
+  const GROUP_IMG = {
+    vehicles:'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&q=80',
+    forsale:'https://images.unsplash.com/photo-1513708927688-890fe41c2748?w=600&q=80',
+    property:'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80',
+    services:'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&q=80',
+    pets:'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&q=80',
+    jobs:'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&q=80',
+    community:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80'
+  };
   let currentTier = 'free';
+  let uploadedImg = null;
+  let lastListing = null;
+
+  function gatherPost(){
+    const err = $('#postError');
+    const fail = (m) => { if(err) err.textContent = m; else toast(m); return null; };
+    if(err) err.textContent = '';
+    const title=($('#pTitle')?.value||'').trim();
+    const cat=$('#postCat')?.value||'';
+    const price=+($('#pPrice')?.value)||0;
+    const desc=($('#pDesc')?.value||'').trim();
+    const loc=($('#pLoc')?.value||'').trim();
+    const email=($('#pEmail')?.value||'').trim();
+    if(!title) return fail(t('post.err_title','Please enter an ad title.'));
+    if(!cat) return fail(t('post.err_cat','Please choose a category.'));
+    if(!loc) return fail(t('post.err_loc','Please enter a location.'));
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(t('post.err_email','Enter a valid email for confirmation.'));
+    const group = window.Store ? Store.findGroupOfCat(cat) : '';
+    const img = uploadedImg || GROUP_IMG[group] || GROUP_IMG.forsale;
+    return { title:{en:title,bn:title}, cat, group, price, desc, loc:{en:loc,bn:loc}, email, img, days:0 };
+  }
+
+  function publishAd(data, tier){
+    const listing = Store.addListing(Object.assign({}, data, { featured: tier!=='free', tier }));
+    lastListing = listing;
+    const tierName = {free:'Basic (Free)',featured:'Featured',premium:'Premium'}[tier]||tier;
+    const ref = 'AB-'+listing.id;
+    const body =
+      'Hi,\n\nThanks for posting on AmaarBazaar — your ad is now live!\n\n'+
+      '• Title: '+data.title.en+'\n'+
+      '• Reference: '+ref+'\n'+
+      '• Category: '+(Store.catNameById(data.cat))+'\n'+
+      '• Price: ৳'+(data.price||0).toLocaleString()+'\n'+
+      '• Location: '+data.loc.en+'\n'+
+      '• Plan: '+tierName+'\n\n'+
+      'Buyers can now find and contact you. You can manage this ad from your account.\n\n— Team AmaarBazaar';
+    Store.sendEmail(data.email, 'Your ad is live on AmaarBazaar ('+ref+')', body);
+    return listing;
+  }
+
+  function showPostSuccess(listing, data){
+    const m = $('#postSuccess'); if(!m){ toast('Ad published! 🎉'); return; }
+    $('#psTitle').textContent = data.title.en;
+    $('#psRef').textContent = 'AB-'+listing.id;
+    $('#psEmail').textContent = data.email;
+    $('#psView').href = 'browse.html?cat='+encodeURIComponent(data.cat);
+    m.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closePostSuccess(){ const m=$('#postSuccess'); if(m){ m.classList.remove('open'); document.body.style.overflow=''; } }
+
+  function resetDropzone(dz){ if(dz){ const p=dz.querySelector('p'); if(p){ p.setAttribute('data-i18n','post.f_photo_hint'); I18nStore.apply(); } } }
+
   function initPost(){
     const form = $('#postForm'); if(!form) return;
-    $$('.tier').forEach(t => t.addEventListener('click', () => {
+    $$('.tier').forEach(ti => ti.addEventListener('click', () => {
       $$('.tier').forEach(x => x.classList.remove('sel'));
-      t.classList.add('sel');
-      currentTier = t.dataset.tier;
+      ti.classList.add('sel');
+      currentTier = ti.dataset.tier;
       updateSubmitLabel();
     }));
     function updateSubmitLabel(){
-      const btn = $('#postSubmit');
+      const btn = $('#postSubmit'); if(!btn) return;
       const key = TIER_PRICE[currentTier] > 0 ? 'post.submit_paid' : 'post.submit';
       btn.setAttribute('data-i18n', key);
       btn.textContent = I18nStore.get(key);
@@ -279,21 +397,27 @@
     dz?.addEventListener('click', () => fileIn.click());
     fileIn?.addEventListener('change', () => {
       if(fileIn.files.length){
-        dz.querySelector('p').textContent = (I18nStore.lang==='bn'
-          ? `${toBnNum(fileIn.files.length)} টি ছবি যুক্ত হয়েছে`
-          : `${fileIn.files.length} photo(s) added`);
+        dz.querySelector('p').textContent = `${fileIn.files.length} photo(s) added ✓`;
+        const r = new FileReader();
+        r.onload = (ev) => { uploadedImg = ev.target.result; };
+        r.readAsDataURL(fileIn.files[0]);
       }
     });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      const data = gatherPost(); if(!data) return;
+      pendingPost = data;
       if(TIER_PRICE[currentTier] > 0){
         openPayment(TIER_PRICE[currentTier], currentTier);
       } else {
-        toast(I18nStore.lang==='bn' ? 'বিজ্ঞাপন প্রকাশিত হয়েছে! 🎉' : 'Ad published! 🎉');
-        form.reset();
-        if(dz) dz.querySelector('p').setAttribute('data-i18n','post.f_photo_hint'), I18nStore.apply();
+        const listing = publishAd(data, 'free');
+        showPostSuccess(listing, data);
+        form.reset(); uploadedImg = null; resetDropzone(dz);
       }
     });
+    $('#psClose')?.addEventListener('click', closePostSuccess);
+    $('#psAnother')?.addEventListener('click', closePostSuccess);
+    $('#postSuccess .modal__overlay')?.addEventListener('click', closePostSuccess);
     document.addEventListener('langchange', updateSubmitLabel);
     updateSubmitLabel();
   }
@@ -358,6 +482,12 @@
       btn.innerHTML = `<span class="spinner"></span> <span data-i18n="pay.processing">${I18nStore.get('pay.processing')}</span>`;
       // Simulated gateway round-trip. Replace with real bKash/Stripe call.
       setTimeout(() => {
+        // Payment cleared → persist the ad and send the email confirmation.
+        if(pendingPost && window.Store){
+          const listing = publishAd(pendingPost, currentTier);
+          const note = $('#paySuccessEmail');
+          if(note) note.textContent = t('pay.email_sent','A confirmation email was sent to ')+pendingPost.email;
+        }
         $('#payForm').style.display='none';
         $('#paySuccess').style.display='block';
         btn.disabled = false; btn.innerHTML = orig;
@@ -365,19 +495,22 @@
     });
     $('#paySuccessBtn')?.addEventListener('click', () => {
       closePayment();
-      $('#postForm')?.reset();
-      toast(I18nStore.lang==='bn'?'বিজ্ঞাপন বুস্ট হয়েছে! 🚀':'Ad boosted & live! 🚀');
+      const form = $('#postForm');
+      if(form){ form.reset(); uploadedImg = null; resetDropzone($('#dropzone')); }
+      const dest = lastListing ? ('browse.html?cat='+encodeURIComponent(lastListing.cat)) : 'browse.html';
+      pendingPost = null;
+      window.location.href = dest;
     });
   }
 
   /* ---- toast ---- */
   let toastTimer;
   function toast(msg){
-    let t = $('#toast');
-    if(!t){ t = document.createElement('div'); t.id='toast'; t.className='toast'; document.body.appendChild(t); }
-    t.textContent = msg; t.classList.add('show');
+    let el = $('#toast');
+    if(!el){ el = document.createElement('div'); el.id='toast'; el.className='toast'; document.body.appendChild(el); }
+    el.textContent = msg; el.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 
   /* ---- splash screen ---- */
@@ -394,8 +527,10 @@
   /* ---- boot ---- */
   document.addEventListener('DOMContentLoaded', () => {
     initLang(); populateCategorySelects(); initNav(); renderCategories(); renderFeatured();
-    initReveal(); initCounters(); initSearch();
+    initReveal(); initCounters(); initSearch(); initGeo();
     initBrowse(); initPost(); initPaymentModal();
+    // keep every screen in sync when the store changes (admin edits, new posts, etc.)
+    if(window.Store) Store.on(() => { populateCategorySelects(); renderCategories(); renderFeatured(); });
     // re-apply translations to freshly rendered nodes
     I18nStore.apply();
     hideSplash();

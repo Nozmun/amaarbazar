@@ -54,7 +54,7 @@
     <div class="post-form">
       <div class="field">
         <label data-i18n="post.f_title">Ad title</label>
-        <input type="text" required data-i18n-ph="post.f_title_ph" placeholder="e.g. Honda CB Hornet 2022, fresh condition">
+        <input id="pTitle" type="text" required data-i18n-ph="post.f_title_ph" placeholder="e.g. Honda CB Hornet 2022, fresh condition">
       </div>
       <div class="field-row">
         <div class="field">
@@ -63,16 +63,26 @@
         </div>
         <div class="field">
           <label data-i18n="post.f_price">Price (৳)</label>
-          <input type="number" min="0" required placeholder="৳ 0">
+          <input id="pPrice" type="number" min="0" required placeholder="৳ 0">
         </div>
       </div>
       <div class="field">
         <label data-i18n="post.f_desc">Description</label>
-        <textarea rows="5" required data-i18n-ph="post.f_desc_ph" placeholder="Describe your item…"></textarea>
+        <textarea id="pDesc" rows="5" data-i18n-ph="post.f_desc_ph" placeholder="Describe your item…"></textarea>
       </div>
-      <div class="field">
-        <label data-i18n="post.f_loc">Location</label>
-        <input type="text" required data-i18n-ph="post.f_loc_ph" placeholder="e.g. Dhanmondi, Dhaka">
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="post.f_loc">Location</label>
+          <div class="loc-field">
+            <input id="pLoc" type="text" required data-citylist data-i18n-ph="post.f_loc_ph" placeholder="Start typing a city…">
+            <button type="button" class="geo-btn" data-geo data-target="#pLoc" title="Use my location" aria-label="Use my location">📍</button>
+          </div>
+          <span class="field-hint" data-i18n="post.loc_hint">Pick from the list or type your own area.</span>
+        </div>
+        <div class="field">
+          <label data-i18n="post.f_email">Email (for confirmation)</label>
+          <input id="pEmail" type="email" required placeholder="you@example.com">
+        </div>
       </div>
       <div class="field">
         <label data-i18n="post.f_photo">Photos</label>
@@ -121,7 +131,8 @@
             </div>
           </div>
         </div>
-        <button type="submit" class="btn btn--primary btn--block btn--lg" id="postSubmit" style="margin-top:1.4rem" data-i18n="post.submit">Publish ad</button>
+        <div id="postError" class="auth-error" style="margin-top:.8rem"></div>
+        <button type="submit" class="btn btn--primary btn--block btn--lg" id="postSubmit" style="margin-top:.4rem" data-i18n="post.submit">Publish ad</button>
       </div>
     </aside>
   </form>
@@ -195,13 +206,39 @@
       </div>
       <h3 data-i18n="pay.success_t">Payment successful!</h3>
       <p data-i18n="pay.success_d">Your ad is now boosted and live.</p>
-      <button class="btn btn--primary btn--lg" id="paySuccessBtn" data-i18n="pay.success_btn">Great, done</button>
+      <p id="paySuccessEmail" class="pay-email-note"></p>
+      <button class="btn btn--primary btn--lg" id="paySuccessBtn" data-i18n="pay.success_btn">View my ad</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== POST SUCCESS MODAL ===== -->
+<div class="modal" id="postSuccess">
+  <div class="modal__overlay"></div>
+  <div class="modal__panel">
+    <button class="modal__close" id="psClose" aria-label="Close">✕</button>
+    <div class="pay-success" style="padding-bottom:1.4rem">
+      <div class="pay-success__check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h3 data-i18n="post.success_t">Your ad is live! 🎉</h3>
+      <p data-i18n="post.success_d">It’s now visible to buyers across Bangladesh.</p>
+      <div class="post-success__card">
+        <div><span data-i18n="post.success_ad">Ad</span>: <strong id="psTitle"></strong></div>
+        <div><span data-i18n="post.success_ref">Reference</span>: <strong id="psRef"></strong></div>
+        <div class="post-success__email">📧 <span data-i18n="post.success_email">Confirmation sent to</span> <strong id="psEmail"></strong></div>
+      </div>
+      <div class="modal-actions" style="display:flex;gap:.8rem;margin-top:1.4rem">
+        <a id="psView" href="browse.html" class="btn btn--primary btn--block"><span data-i18n="post.success_view">View my ad</span></a>
+        <button id="psAnother" class="btn btn--outline btn--block" data-i18n="post.success_another">Post another</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script src="js/i18n.js"></script>
 <script src="js/data.js"></script>
+<script src="js/store.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/app.js"></script>
 </body>

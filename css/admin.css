@@ -128,6 +128,8 @@ textarea:focus {
   color: var(--white);
 }
 .nav-link.logout { margin-top: 2rem; color: #ffb3b3; }
+.nav-link--site { background: rgba(255,255,255,.12); margin-bottom: 1.2rem; font-weight: 700; }
+.nav-link--site:hover { background: rgba(255,255,255,.22); color: #fff; }
 
 /* Admin Content */
 .admin-content {

@@ -102,6 +102,7 @@
     if (section) { section.classList.add('active'); section.classList.remove('hidden'); }
     if (link) link.classList.add('active');
 
+    activeSection = sectionId;
     // Load section-specific data
     if (sectionId === 'users') loadUsers();
     else if (sectionId === 'listings') loadListings();
@@ -135,15 +136,14 @@
     showLoginModal();
   };
 
-  /* ---- Dashboard Data ---- */
+  /* ---- Dashboard Data (from Store) ---- */
   function loadDashboardData() {
-    if (typeof LISTINGS !== 'undefined') {
-      document.getElementById('statListings').textContent = LISTINGS.length;
-      document.getElementById('statRevenue').textContent = '৳' + (LISTINGS.length * 500).toLocaleString();
-    }
-    if (typeof CATEGORIES !== 'undefined') {
-      document.getElementById('statCategories').textContent = CATEGORIES.length;
-    }
+    const listings = window.Store ? Store.getListings() : (typeof LISTINGS !== 'undefined' ? LISTINGS : []);
+    const cats = window.Store ? Store.getFlatCategories() : (typeof CATEGORIES !== 'undefined' ? CATEGORIES : []);
+    const revenue = listings.reduce((sum, l) => sum + ({ featured: 299, premium: 599 }[l.tier] || 0), 0);
+    document.getElementById('statListings').textContent = listings.length;
+    document.getElementById('statRevenue').textContent = '৳' + revenue.toLocaleString();
+    document.getElementById('statCategories').textContent = cats.length;
     document.getElementById('statUsers').textContent = getUsers().length;
   }
 
@@ -283,76 +283,178 @@
     loadUsers();
   };
 
-  /* ---- Listings Management ---- */
+  /* ---- Listings Management (full CRUD via Store) ---- */
+  function populateListingCatSelect(selected) {
+    const sel = document.getElementById('listingCat');
+    if (!sel || !window.Store) return;
+    sel.innerHTML = '';
+    Store.getGroups().forEach(g => {
+      const og = document.createElement('optgroup');
+      og.label = g.group || g.key;
+      g.categories.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id; o.textContent = Store.catName(c);
+        og.appendChild(o);
+      });
+      sel.appendChild(og);
+    });
+    if (selected) sel.value = selected;
+  }
+
   function loadListings() {
     const tbody = document.getElementById('listingsTable');
-    if (typeof LISTINGS === 'undefined' || LISTINGS.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">No listings available.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = LISTINGS.map(listing => `
+    const listings = window.Store ? Store.getListings() : [];
+    if (!listings.length) { tbody.innerHTML = '<tr><td colspan="6">No listings yet. Use “Add Listing”.</td></tr>'; return; }
+    tbody.innerHTML = listings.map(l => `
       <tr>
-        <td>${listing.id}</td>
-        <td>${escapeHtml(listing.title.en)}</td>
-        <td>${listing.cat}</td>
-        <td>৳${listing.price.toLocaleString()}</td>
-        <td><span class="status-badge active">Active</span></td>
+        <td>${l.id}</td>
+        <td>${escapeHtml(l.title.en)}${l.featured ? ' <span class="status-badge success">Featured</span>' : ''}</td>
+        <td>${escapeHtml(Store.catNameById(l.cat))}</td>
+        <td>৳${(l.price||0).toLocaleString()}</td>
+        <td>${escapeHtml((l.loc && l.loc.en) || '-')}</td>
         <td>
-          <button class="btn-small btn-danger" data-action="deleteListing" data-id="${listing.id}">Delete</button>
+          <button class="btn-small" data-action="editListing" data-id="${l.id}">Edit</button>
+          <button class="btn-small btn-danger" data-action="deleteListing" data-id="${l.id}">Delete</button>
         </td>
-      </tr>
-    `).join('');
+      </tr>`).join('');
   }
+
+  window.openCreateListing = function() {
+    document.getElementById('listingModalTitle').textContent = 'Add Listing';
+    document.getElementById('listingForm').reset();
+    document.getElementById('listingId').value = '';
+    populateListingCatSelect();
+    document.getElementById('listingError').textContent = '';
+    document.getElementById('listingModal').classList.remove('hidden');
+  };
+  window.closeListingModal = function() { document.getElementById('listingModal').classList.add('hidden'); };
+
+  window.editListing = function(id) {
+    const l = Store.getListing(id);
+    if (!l) return;
+    document.getElementById('listingModalTitle').textContent = 'Edit Listing';
+    document.getElementById('listingId').value = l.id;
+    document.getElementById('listingTitle').value = l.title.en;
+    populateListingCatSelect(l.cat);
+    document.getElementById('listingPrice').value = l.price;
+    document.getElementById('listingLoc').value = (l.loc && l.loc.en) || '';
+    document.getElementById('listingFeatured').checked = !!l.featured;
+    document.getElementById('listingError').textContent = '';
+    document.getElementById('listingModal').classList.remove('hidden');
+  };
+
+  window.saveListing = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('listingId').value;
+    const title = document.getElementById('listingTitle').value.trim();
+    const cat = document.getElementById('listingCat').value;
+    const price = +document.getElementById('listingPrice').value || 0;
+    const loc = document.getElementById('listingLoc').value.trim();
+    const featured = document.getElementById('listingFeatured').checked;
+    const err = document.getElementById('listingError');
+    if (!title || !cat || !loc) { err.textContent = 'Title, category and location are required.'; return; }
+    const group = Store.findGroupOfCat(cat) || '';
+    const data = { title: { en: title, bn: title }, cat, group, price, loc: { en: loc, bn: loc }, featured };
+    if (id) {
+      Store.updateListing(id, data);
+      logActivity('listing_edit', `Edited listing #${id}: ${title}`, 'success');
+    } else {
+      const created = Store.addListing(Object.assign({ img: 'https://images.unsplash.com/photo-1513708927688-890fe41c2748?w=600&q=80', days: 0 }, data));
+      logActivity('listing_create', `Created listing #${created.id}: ${title}`, 'success');
+    }
+    closeListingModal();
+  };
 
   window.deleteListing = function(listingId) {
-    if (confirm('Delete this listing?')) {
-      logActivity('listing_delete', `Deleted listing ID: ${listingId}`, 'success');
-      alert('Listing deleted (Demo mode - data not actually persisted)');
-    }
+    if (!confirm('Delete this listing? This cannot be undone.')) return;
+    Store.deleteListing(listingId);
+    logActivity('listing_delete', `Deleted listing #${listingId}`, 'success');
   };
 
-  /* ---- Categories Management ---- */
-  function loadCategories() {
-    const tbody = document.getElementById('categoriesTable');
-    if (typeof CATEGORIES === 'undefined' || CATEGORIES.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4">No categories available.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = CATEGORIES.map(cat => `
-      <tr>
-        <td>${escapeHtml(cat.key || cat.id)}</td>
-        <td>${cat.icon}</td>
-        <td>${Math.floor(Math.random() * 50)}</td>
-        <td>
-          <button class="btn-small" data-action="editCategory" data-id="${cat.id}">Edit</button>
-        </td>
-      </tr>
-    `).join('');
+  /* ---- Categories Management (full CRUD via Store) ---- */
+  function populateGroupSelect(selected) {
+    const sel = document.getElementById('catGroup');
+    if (!sel || !window.Store) return;
+    sel.innerHTML = Store.getGroups().map(g => `<option value="${g.key}">${escapeHtml(g.group || g.key)}</option>`).join('');
+    if (selected) sel.value = selected;
   }
 
+  function loadCategories() {
+    const tbody = document.getElementById('categoriesTable');
+    const cats = window.Store ? Store.getFlatCategories() : [];
+    const counts = {};
+    (window.Store ? Store.getListings() : []).forEach(l => { counts[l.cat] = (counts[l.cat]||0)+1; });
+    if (!cats.length) { tbody.innerHTML = '<tr><td colspan="4">No categories.</td></tr>'; return; }
+    tbody.innerHTML = cats.map(cat => `
+      <tr>
+        <td>${escapeHtml(Store.catName(cat))}</td>
+        <td>${cat.icon || ''}</td>
+        <td>${counts[cat.id] || 0}</td>
+        <td>
+          <button class="btn-small" data-action="editCategory" data-id="${cat.id}">Edit</button>
+          <button class="btn-small btn-danger" data-action="deleteCategory" data-id="${cat.id}">Delete</button>
+        </td>
+      </tr>`).join('');
+  }
+
+  window.openCreateCategory = function() {
+    document.getElementById('catModalTitle').textContent = 'Add Category';
+    document.getElementById('catForm').reset();
+    document.getElementById('catId').value = '';
+    populateGroupSelect();
+    document.getElementById('catError').textContent = '';
+    document.getElementById('catModal').classList.remove('hidden');
+  };
+  window.closeCatModal = function() { document.getElementById('catModal').classList.add('hidden'); };
+
   window.editCategory = function(catId) {
-    logActivity('category_edit', `Opened edit for category: ${catId}`, 'view');
-    alert('Category edit coming soon');
+    const cat = Store.getFlatCategories().find(c => c.id === catId);
+    if (!cat) return;
+    document.getElementById('catModalTitle').textContent = 'Edit Category';
+    document.getElementById('catId').value = cat.id;
+    document.getElementById('catName').value = Store.catName(cat);
+    document.getElementById('catIcon').value = cat.icon || '';
+    populateGroupSelect(cat.group);
+    document.getElementById('catGroup').disabled = true; // group fixed on edit
+    document.getElementById('catError').textContent = '';
+    document.getElementById('catModal').classList.remove('hidden');
   };
 
-  window.addCategory = function() {
-    logActivity('category_edit', 'Opened create category modal', 'view');
-    alert('Add category feature coming soon.');
+  window.addCategory = function() { document.getElementById('catGroup').disabled = false; openCreateCategory(); };
+
+  window.saveCategory = function(e) {
+    e.preventDefault();
+    const id = document.getElementById('catId').value;
+    const name = document.getElementById('catName').value.trim();
+    const icon = document.getElementById('catIcon').value.trim() || '🏷️';
+    const groupKey = document.getElementById('catGroup').value;
+    const err = document.getElementById('catError');
+    if (!name) { err.textContent = 'Category name is required.'; return; }
+    if (id) {
+      Store.updateCategory(id, { name, icon, key: null });
+      logActivity('category_edit', `Edited category: ${name}`, 'success');
+    } else {
+      const newId = name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || ('cat_' + Date.now());
+      const res = Store.addCategory(groupKey, { id: newId, icon, name });
+      if (!res) { err.textContent = 'A category with that name/id already exists.'; return; }
+      logActivity('category_create', `Created category: ${name}`, 'success');
+    }
+    document.getElementById('catGroup').disabled = false;
+    closeCatModal();
   };
 
-  /* ---- Audit Log ---- */
+  window.deleteCategory = function(catId) {
+    if (!confirm('Delete this category?')) return;
+    Store.deleteCategory(catId);
+    logActivity('category_delete', `Deleted category: ${catId}`, 'success');
+  };
+
+  /* ---- Audit Log (view / add / delete) ---- */
   function loadAuditLog() {
     const logs = getAuditLog();
     const tbody = document.getElementById('auditTable');
-
-    if (logs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">No activity logged yet.</td></tr>';
-      return;
-    }
-
-    tbody.innerHTML = logs.map(log => `
+    if (logs.length === 0) { tbody.innerHTML = '<tr><td colspan="7">No activity logged yet.</td></tr>'; return; }
+    tbody.innerHTML = logs.map((log, i) => `
       <tr>
         <td>${formatDateTime(log.timestamp)}</td>
         <td><strong>${escapeHtml(log.admin)}</strong></td>
@@ -360,9 +462,26 @@
         <td>${escapeHtml(log.details)}</td>
         <td>${log.ip}</td>
         <td><span class="status-badge ${log.status}">${log.status}</span></td>
-      </tr>
-    `).join('');
+        <td><button class="btn-small btn-danger" data-action="deleteAudit" data-id="${i}">Delete</button></td>
+      </tr>`).join('');
   }
+
+  window.addAuditNote = function() {
+    const note = prompt('Enter an audit note / manual log entry:');
+    if (!note) return;
+    logActivity('note', note, 'success');
+    loadAuditLog();
+  };
+
+  window.deleteAuditEntry = function(index) {
+    const logs = getAuditLog();
+    const i = +index;
+    if (i < 0 || i >= logs.length) return;
+    if (!confirm('Delete this audit entry?')) return;
+    logs.splice(i, 1);
+    saveAuditLog(logs);
+    loadAuditLog();
+  };
 
   window.filterAuditLog = function() {
     const userFilter = document.getElementById('auditFilterUser').value.toLowerCase();
@@ -449,16 +568,25 @@
   const ACTIONS = {
     section: (el) => showSection(el.dataset.section),
     logout: () => adminLogout(),
-    addCategory: () => addCategory(),
     createUser: () => openCreateUserModal(),
     closeUser: () => closeUserModal(),
-    clearAudit: () => clearAuditLog(),
-    saveSettings: () => saveSettings(),
     editUser: (el) => editUser(el.dataset.id),
     deleteUser: (el) => deleteUser(el.dataset.id),
+    addListing: () => openCreateListing(),
+    editListing: (el) => editListing(el.dataset.id),
     deleteListing: (el) => deleteListing(el.dataset.id),
-    editCategory: (el) => editCategory(el.dataset.id)
+    closeListing: () => closeListingModal(),
+    addCategory: () => addCategory(),
+    editCategory: (el) => editCategory(el.dataset.id),
+    deleteCategory: (el) => deleteCategory(el.dataset.id),
+    closeCat: () => closeCatModal(),
+    clearAudit: () => clearAuditLog(),
+    addAuditNote: () => addAuditNote(),
+    deleteAudit: (el) => deleteAuditEntry(el.dataset.id),
+    saveSettings: () => saveSettings()
   };
+
+  let activeSection = 'stats';
 
   function wireEvents() {
     // Delegated clicks for all [data-action] elements (works for dynamic rows too)
@@ -471,9 +599,24 @@
     // Forms
     document.getElementById('loginForm')?.addEventListener('submit', adminLogin);
     document.getElementById('userForm')?.addEventListener('submit', saveUser);
+    document.getElementById('listingForm')?.addEventListener('submit', saveListing);
+    document.getElementById('catForm')?.addEventListener('submit', saveCategory);
     // Audit filters
     document.getElementById('auditFilterUser')?.addEventListener('keyup', filterAuditLog);
     document.getElementById('auditFilterAction')?.addEventListener('change', filterAuditLog);
+    // Close modals when clicking the dark overlay
+    ['listingModal', 'catModal'].forEach(id => {
+      document.getElementById(id)?.addEventListener('click', (e) => {
+        if (e.target.id === id) document.getElementById(id).classList.add('hidden');
+      });
+    });
+    // Re-render whatever's on screen whenever the shared store changes
+    if (window.Store) Store.on(() => {
+      loadDashboardData();
+      if (activeSection === 'listings') loadListings();
+      else if (activeSection === 'categories') loadCategories();
+      else if (activeSection === 'users') loadUsers();
+    });
   }
 
   /* ---- Initialize ---- */

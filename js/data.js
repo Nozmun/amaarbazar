@@ -135,53 +135,74 @@ const CATEGORY_GROUPS = [
 // Flat list for backwards compatibility with filters/modals
 const CATEGORIES = CATEGORY_GROUPS.reduce((arr, group) => [...arr, ...group.categories], []);
 
+// Listings use real sub-category ids + their parent group slug so browse/group filters work.
 const LISTINGS = [
-  { id:1, cat:'vehicles', price:185000, featured:true,
+  { id:1, cat:'motorbikes', group:'vehicles', price:185000, featured:true,
     title:{en:'Honda CB Hornet 2022 — fresh', bn:'Honda CB Hornet 2022 — ফ্রেশ'},
     loc:{en:'Mirpur, Dhaka', bn:'মিরপুর, ঢাকা'}, days:1,
     img:'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=600&q=80' },
-  { id:2, cat:'electronics', price:142000, featured:true,
+  { id:2, cat:'mobiles', group:'forsale', price:142000, featured:true,
     title:{en:'iPhone 14 Pro 256GB, warranty', bn:'iPhone 14 Pro 256GB, ওয়ারেন্টি'},
     loc:{en:'Gulshan, Dhaka', bn:'গুলশান, ঢাকা'}, days:1,
     img:'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80' },
-  { id:3, cat:'property', price:25000, featured:true,
+  { id:3, cat:'property_rent', group:'property', price:25000, featured:true,
     title:{en:'2-bed flat to rent, well lit', bn:'২ রুমের ফ্ল্যাট ভাড়া, আলোকিত'},
     loc:{en:'Dhanmondi, Dhaka', bn:'ধানমন্ডি, ঢাকা'}, days:2,
     img:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&q=80' },
-  { id:4, cat:'electronics', price:78000, featured:false,
+  { id:4, cat:'computers', group:'forsale', price:78000, featured:false,
     title:{en:'MacBook Air M1, 8/256, mint', bn:'MacBook Air M1, 8/256, মিন্ট'},
     loc:{en:'Agrabad, Chattogram', bn:'আগ্রাবাদ, চট্টগ্রাম'}, days:3,
     img:'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&q=80' },
-  { id:5, cat:'forsale', price:32000, featured:false,
+  { id:5, cat:'furniture', group:'forsale', price:32000, featured:false,
     title:{en:'Solid wood dining table, 6-seat', bn:'কাঠের ডাইনিং টেবিল, ৬ আসন'},
     loc:{en:'Zindabazar, Sylhet', bn:'জিন্দাবাজার, সিলেট'}, days:4,
     img:'https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=600&q=80' },
-  { id:6, cat:'vehicles', price:1250000, featured:true,
+  { id:6, cat:'cars', group:'vehicles', price:1250000, featured:true,
     title:{en:'Toyota Axio 2017, single owner', bn:'Toyota Axio 2017, একক মালিক'},
     loc:{en:'Uttara, Dhaka', bn:'উত্তরা, ঢাকা'}, days:2,
     img:'https://images.unsplash.com/photo-1550355291-bbee04a92027?w=600&q=80' },
-  { id:7, cat:'pets', price:8500, featured:false,
+  { id:7, cat:'cats', group:'pets', price:8500, featured:false,
     title:{en:'Persian kitten, vaccinated', bn:'পার্সিয়ান বিড়ালছানা, টিকা দেওয়া'},
     loc:{en:'Khulshi, Chattogram', bn:'খুলশী, চট্টগ্রাম'}, days:5,
     img:'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=600&q=80' },
-  { id:8, cat:'electronics', price:54000, featured:false,
+  { id:8, cat:'tv_audio', group:'forsale', price:54000, featured:false,
     title:{en:'Samsung 55" 4K Smart TV', bn:'Samsung 55" 4K স্মার্ট টিভি'},
     loc:{en:'Bashundhara, Dhaka', bn:'বসুন্ধরা, ঢাকা'}, days:3,
     img:'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=80' },
-  { id:9, cat:'forsale', price:4500, featured:false,
+  { id:9, cat:'bicycles', group:'vehicles', price:4500, featured:false,
     title:{en:'Trek mountain bike, 21-speed', bn:'Trek মাউন্টেন বাইক, ২১-স্পিড'},
     loc:{en:'Rajshahi city', bn:'রাজশাহী শহর'}, days:6,
     img:'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600&q=80' },
-  { id:10, cat:'jobs', price:35000, featured:false,
+  { id:10, cat:'freelance', group:'jobs', price:35000, featured:false,
     title:{en:'Graphic designer — full time', bn:'গ্রাফিক ডিজাইনার — ফুল টাইম'},
     loc:{en:'Banani, Dhaka', bn:'বনানী, ঢাকা'}, days:1,
     img:'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80' },
-  { id:11, cat:'services', price:1500, featured:false,
+  { id:11, cat:'electrical', group:'services', price:1500, featured:false,
     title:{en:'AC servicing & repair, doorstep', bn:'এসি সার্ভিসিং ও মেরামত, বাসায়'},
     loc:{en:'Mohakhali, Dhaka', bn:'মহাখালী, ঢাকা'}, days:2,
     img:'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=600&q=80' },
-  { id:12, cat:'property', price:8500000, featured:false,
+  { id:12, cat:'property_sale', group:'property', price:8500000, featured:false,
     title:{en:'Land plot 5 katha, ready docs', bn:'জমি ৫ কাঠা, কাগজ প্রস্তুত'},
     loc:{en:'Savar, Dhaka', bn:'সাভার, ঢাকা'}, days:7,
     img:'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&q=80' }
 ];
+
+// Predefined Bangladesh cities/towns for the location picker (overridable free-text).
+const BD_CITIES = [
+  'Dhaka','Chattogram','Khulna','Rajshahi','Sylhet','Barishal','Rangpur','Mymensingh',
+  'Gazipur','Narayanganj','Savar','Tongi','Comilla','Cox’s Bazar','Jessore','Bogura',
+  'Dinajpur','Tangail','Pabna','Brahmanbaria','Naogaon','Feni','Noakhali','Jamalpur',
+  'Kushtia','Faridpur','Sirajganj','Satkhira','Narsingdi','Chandpur','Habiganj','Moulvibazar',
+  'Sunamganj','Bhola','Patuakhali','Pirojpur','Jhenaidah','Magura','Madaripur','Manikganj',
+  'Munshiganj','Kishoreganj','Netrokona','Sherpur','Nilphamari','Lalmonirhat','Kurigram',
+  'Gaibandha','Joypurhat','Natore','Chapainawabganj','Meherpur','Chuadanga','Bagerhat',
+  'Narail','Gopalganj','Rajbari','Shariatpur','Lakshmipur','Khagrachhari','Rangamati','Bandarban'
+];
+
+// Coarse division coordinates for the "use my location" nearest-city lookup.
+const BD_CITY_COORDS = {
+  'Dhaka':[23.81,90.41], 'Chattogram':[22.36,91.78], 'Khulna':[22.85,89.54],
+  'Rajshahi':[24.37,88.60], 'Sylhet':[24.90,91.87], 'Barishal':[22.70,90.37],
+  'Rangpur':[25.74,89.27], 'Mymensingh':[24.75,90.40], 'Cox’s Bazar':[21.43,92.01],
+  'Comilla':[23.46,91.18], 'Bogura':[24.85,89.37], 'Jessore':[23.17,89.21]
+};
