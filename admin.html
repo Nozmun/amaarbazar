@@ -33,9 +33,10 @@
     </div>
     <ul class="admin-nav__menu">
       <li><a href="#" onclick="showSection('stats')" class="nav-link active">Dashboard</a></li>
+      <li><a href="#" onclick="showSection('users')" class="nav-link">User Management</a></li>
       <li><a href="#" onclick="showSection('listings')" class="nav-link">Manage Listings</a></li>
       <li><a href="#" onclick="showSection('categories')" class="nav-link">Categories</a></li>
-      <li><a href="#" onclick="showSection('users')" class="nav-link">Users</a></li>
+      <li><a href="#" onclick="showSection('audit')" class="nav-link">Audit Log</a></li>
       <li><a href="#" onclick="showSection('settings')" class="nav-link">Settings</a></li>
       <li><a href="#" onclick="adminLogout()" class="nav-link logout">Logout</a></li>
     </ul>
@@ -107,7 +108,91 @@
     <!-- Users Section -->
     <section id="users" class="section hidden">
       <h2>User Management</h2>
-      <p>User management interface coming soon.</p>
+      <div class="user-actions">
+        <button class="btn btn-primary" onclick="openCreateUserModal()">+ Create New User</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th>Last Login</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable">
+          <tr><td colspan="7">Loading users...</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Create/Edit User Modal -->
+    <div id="userModal" class="modal-overlay">
+      <div class="modal-panel">
+        <h3 id="userModalTitle">Create New User</h3>
+        <form id="userForm" onsubmit="saveUser(event)">
+          <input type="hidden" id="userId">
+          <label>Username</label>
+          <input type="text" id="userUsername" placeholder="username" required>
+          <label>Email</label>
+          <input type="email" id="userEmail" placeholder="user@example.com" required>
+          <label>Password</label>
+          <input type="password" id="userPassword" placeholder="Enter password" required>
+          <label>Role</label>
+          <select id="userRole" required>
+            <option value="user">User (Seller)</option>
+            <option value="moderator">Moderator</option>
+            <option value="admin">Admin</option>
+          </select>
+          <label>
+            <input type="checkbox" id="userActive" checked>
+            Active Account
+          </label>
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-primary">Save User</button>
+            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+          </div>
+          <p id="userError" class="error"></p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Audit Log Section -->
+    <section id="audit" class="section hidden">
+      <h2>Admin Activity Log</h2>
+      <div class="audit-filters">
+        <input type="text" id="auditFilterUser" placeholder="Filter by username..." onkeyup="filterAuditLog()">
+        <select id="auditFilterAction" onchange="filterAuditLog()">
+          <option value="">All Actions</option>
+          <option value="login">Login</option>
+          <option value="logout">Logout</option>
+          <option value="user_create">Create User</option>
+          <option value="user_edit">Edit User</option>
+          <option value="user_delete">Delete User</option>
+          <option value="listing_delete">Delete Listing</option>
+          <option value="category_edit">Edit Category</option>
+          <option value="settings_change">Change Settings</option>
+        </select>
+        <button class="btn btn-secondary" onclick="clearAuditLog()">Clear Log</button>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Admin User</th>
+            <th>Action</th>
+            <th>Details</th>
+            <th>IP Address</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="auditTable">
+          <tr><td colspan="6">Loading activity log...</td></tr>
+        </tbody>
+      </table>
     </section>
 
     <!-- Settings Section -->
