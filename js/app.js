@@ -83,25 +83,37 @@
     els.forEach(el => io.observe(el));
   }
 
-  /* ---- render categories ---- */
+  /* ---- render categories (Gumtree-style hierarchical) ---- */
   function renderCategories(){
     const grid = $('#catGrid'); if(!grid) return;
     let cardIndex = 0;
-    grid.innerHTML = CATEGORY_GROUPS.map((group, gidx) => `
-      <div class="cat-group">
-        <h3 class="cat-group__title" data-i18n="${group.key}">${I18nStore.get(group.key)}</h3>
-        <div class="cat-group__items">
-          ${group.categories.map((c) => {
-            const style = `--i:${cardIndex % 8}`;
-            cardIndex++;
-            return `<a href="browse.html?cat=${c.id}" class="cat-card" style="${style}">
-              <div class="cat-card__icon">${c.icon}</div>
-              <div class="cat-card__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</div>
-            </a>`;
-          }).join('')}
-        </div>
-      </div>`).join('');
-    $$('.cat-card', grid).forEach(reveal);
+
+    grid.innerHTML = CATEGORY_GROUPS.map((group, gidx) => {
+      const mainSubcats = group.categories.slice(0, 5); // Show first 5
+      return `
+        <div class="cat-main" style="--i:${gidx}">
+          <div class="cat-main__header">
+            <div class="cat-main__title" data-i18n="${group.key}">${I18nStore.get(group.key)}</div>
+            <a href="browse.html?group=${group.key.split('.')[1]}" class="cat-main__link">Browse all</a>
+          </div>
+          <div class="cat-main__subcats">
+            ${mainSubcats.map((c, idx) => `
+              <a href="browse.html?cat=${c.id}" class="cat-subcat" style="--i:${idx}">
+                <span class="cat-subcat__icon">${c.icon}</span>
+                <span class="cat-subcat__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
+              </a>
+            `).join('')}
+            ${group.categories.length > 5 ? `
+              <a href="browse.html?group=${group.key.split('.')[1]}" class="cat-subcat cat-subcat--more" style="--i:5">
+                <span class="cat-subcat__icon">+</span>
+                <span class="cat-subcat__name">More (${group.categories.length - 5})</span>
+              </a>
+            ` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    $$('.cat-main', grid).forEach(reveal);
   }
 
   /* ---- card template ---- */
