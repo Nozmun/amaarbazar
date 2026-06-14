@@ -1,22 +1,88 @@
 // AmaarBazaar — sample listings. Bilingual title/location, BDT prices.
 const CATEGORIES = [
-  { id: 'vehicles',       icon: '🏍️', key: 'cat.vehicles' },
-  { id: 'property_rent',  icon: '🏘️', key: 'cat.property_rent' },
-  { id: 'property_sale',  icon: '🏠', key: 'cat.property_sale' },
-  { id: 'livestock',      icon: '🐄', key: 'cat.livestock' },
-  { id: 'agriculture',    icon: '🌾', key: 'cat.agriculture' },
-  { id: 'electronics',    icon: '📱', key: 'cat.electronics' },
-  { id: 'furniture',      icon: '🪑', key: 'cat.furniture' },
-  { id: 'fashion',        icon: '👗', key: 'cat.fashion' },
-  { id: 'mobiles',        icon: '📲', key: 'cat.mobiles' },
-  { id: 'appliances',     icon: '❄️', key: 'cat.appliances' },
-  { id: 'books',          icon: '📚', key: 'cat.books' },
-  { id: 'sports',         icon: '⚽', key: 'cat.sports' },
-  { id: 'education',      icon: '🎓', key: 'cat.education' },
-  { id: 'jobs',           icon: '💼', key: 'cat.jobs' },
-  { id: 'services',       icon: '🛠️', key: 'cat.services' },
-  { id: 'pets',           icon: '🐾', key: 'cat.pets' },
-  { id: 'community',      icon: '🤝', key: 'cat.community' }
+  // Motors & Vehicles
+  { id: 'cars',            icon: '🚗', key: 'cat.cars' },
+  { id: 'motorcycles',     icon: '🏍️', key: 'cat.motorcycles' },
+  { id: 'commercial',      icon: '🚚', key: 'cat.commercial' },
+  { id: 'auto_parts',      icon: '⚙️', key: 'cat.auto_parts' },
+  { id: 'bicycles',        icon: '🚲', key: 'cat.bicycles' },
+
+  // Property & Housing
+  { id: 'property_rent',   icon: '🏘️', key: 'cat.property_rent' },
+  { id: 'property_sale',   icon: '🏠', key: 'cat.property_sale' },
+  { id: 'flatmates',       icon: '👥', key: 'cat.flatmates' },
+  { id: 'commercial_rent', icon: '🏢', key: 'cat.commercial_rent' },
+
+  // Electronics & Technology
+  { id: 'mobiles',         icon: '📱', key: 'cat.mobiles' },
+  { id: 'computers',       icon: '💻', key: 'cat.computers' },
+  { id: 'tablets',         icon: '📱', key: 'cat.tablets' },
+  { id: 'cameras',         icon: '📷', key: 'cat.cameras' },
+  { id: 'electronics',     icon: '🔌', key: 'cat.electronics' },
+  { id: 'tv_audio',        icon: '📺', key: 'cat.tv_audio' },
+  { id: 'gaming',          icon: '🎮', key: 'cat.gaming' },
+
+  // Household & Furniture
+  { id: 'furniture',       icon: '🪑', key: 'cat.furniture' },
+  { id: 'appliances',      icon: '❄️', key: 'cat.appliances' },
+  { id: 'kitchenware',     icon: '🍳', key: 'cat.kitchenware' },
+  { id: 'home_decor',      icon: '🖼️', key: 'cat.home_decor' },
+  { id: 'bedding',         icon: '🛏️', key: 'cat.bedding' },
+
+  // Fashion & Accessories
+  { id: 'fashion',         icon: '👗', key: 'cat.fashion' },
+  { id: 'footwear',        icon: '👞', key: 'cat.footwear' },
+  { id: 'jewelry',         icon: '💍', key: 'cat.jewelry' },
+  { id: 'watches',         icon: '⌚', key: 'cat.watches' },
+  { id: 'bags',            icon: '👜', key: 'cat.bags' },
+
+  // Sports, Hobbies & Recreation
+  { id: 'sports',          icon: '⚽', key: 'cat.sports' },
+  { id: 'outdoor',         icon: '⛺', key: 'cat.outdoor' },
+  { id: 'fitness',         icon: '💪', key: 'cat.fitness' },
+  { id: 'musical',         icon: '🎸', key: 'cat.musical' },
+  { id: 'books',           icon: '📚', key: 'cat.books' },
+  { id: 'toys',            icon: '🧸', key: 'cat.toys' },
+  { id: 'collectibles',    icon: '🎨', key: 'cat.collectibles' },
+
+  // Agriculture & Livestock
+  { id: 'livestock',       icon: '🐄', key: 'cat.livestock' },
+  { id: 'agriculture',     icon: '🌾', key: 'cat.agriculture' },
+  { id: 'farming_tools',   icon: '🚜', key: 'cat.farming_tools' },
+  { id: 'aquaculture',     icon: '🐟', key: 'cat.aquaculture' },
+
+  // Pets & Animals
+  { id: 'pets',            icon: '🐾', key: 'cat.pets' },
+  { id: 'pet_supplies',    icon: '🦴', key: 'cat.pet_supplies' },
+
+  // Services
+  { id: 'services',        icon: '🛠️', key: 'cat.services' },
+  { id: 'lessons',         icon: '🎓', key: 'cat.lessons' },
+  { id: 'tutoring',        icon: '📖', key: 'cat.tutoring' },
+  { id: 'repair',          icon: '🔧', key: 'cat.repair' },
+  { id: 'moving',          icon: '📦', key: 'cat.moving' },
+
+  // Jobs & Work
+  { id: 'jobs',            icon: '💼', key: 'cat.jobs' },
+  { id: 'jobs_fulltime',   icon: '💻', key: 'cat.jobs_fulltime' },
+  { id: 'jobs_parttime',   icon: '⏰', key: 'cat.jobs_parttime' },
+  { id: 'freelance',       icon: '🎯', key: 'cat.freelance' },
+
+  // Education & Courses
+  { id: 'education',       icon: '🎓', key: 'cat.education' },
+  { id: 'courses',         icon: '📚', key: 'cat.courses' },
+  { id: 'skills',          icon: '🎯', key: 'cat.skills' },
+
+  // Community & Events
+  { id: 'events',          icon: '🎉', key: 'cat.events' },
+  { id: 'groups',          icon: '👥', key: 'cat.groups' },
+  { id: 'lost_found',      icon: '🔍', key: 'cat.lost_found' },
+  { id: 'community',       icon: '🤝', key: 'cat.community' },
+
+  // General & Miscellaneous
+  { id: 'wanted',          icon: '🔎', key: 'cat.wanted' },
+  { id: 'exchange',        icon: '🔄', key: 'cat.exchange' },
+  { id: 'other',           icon: '📦', key: 'cat.other' }
 ];
 
 const LISTINGS = [
