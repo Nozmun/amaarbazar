@@ -64,11 +64,21 @@
   /* ---- render categories ---- */
   function renderCategories(){
     const grid = $('#catGrid'); if(!grid) return;
-    grid.innerHTML = CATEGORIES.map((c,i) => `
-      <a href="browse.html?cat=${c.id}" class="cat-card" style="--i:${i}">
-        <div class="cat-card__icon">${c.icon}</div>
-        <div class="cat-card__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</div>
-      </a>`).join('');
+    let cardIndex = 0;
+    grid.innerHTML = CATEGORY_GROUPS.map((group, gidx) => `
+      <div class="cat-group">
+        <h3 class="cat-group__title" data-i18n="${group.key}">${I18nStore.get(group.key)}</h3>
+        <div class="cat-group__items">
+          ${group.categories.map((c) => {
+            const style = `--i:${cardIndex % 8}`;
+            cardIndex++;
+            return `<a href="browse.html?cat=${c.id}" class="cat-card" style="${style}">
+              <div class="cat-card__icon">${c.icon}</div>
+              <div class="cat-card__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</div>
+            </a>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
     $$('.cat-card', grid).forEach(reveal);
   }
 

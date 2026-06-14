@@ -54,23 +54,86 @@
         <label data-i18n="browse.category">Category</label>
         <select id="fCat">
           <option value="" data-i18n="browse.all">All categories</option>
-          <option value="vehicles" data-i18n="cat.vehicles">Vehicles</option>
-          <option value="property_rent" data-i18n="cat.property_rent">Property to Rent</option>
-          <option value="property_sale" data-i18n="cat.property_sale">Property for Sale</option>
-          <option value="livestock" data-i18n="cat.livestock">Livestock</option>
-          <option value="agriculture" data-i18n="cat.agriculture">Agriculture</option>
-          <option value="electronics" data-i18n="cat.electronics">Electronics</option>
-          <option value="furniture" data-i18n="cat.furniture">Furniture</option>
-          <option value="fashion" data-i18n="cat.fashion">Fashion & Clothing</option>
-          <option value="mobiles" data-i18n="cat.mobiles">Mobile Phones</option>
-          <option value="appliances" data-i18n="cat.appliances">Home Appliances</option>
-          <option value="books" data-i18n="cat.books">Books & Media</option>
-          <option value="sports" data-i18n="cat.sports">Sports & Outdoors</option>
-          <option value="education" data-i18n="cat.education">Education & Courses</option>
-          <option value="jobs" data-i18n="cat.jobs">Jobs</option>
-          <option value="services" data-i18n="cat.services">Services</option>
-          <option value="pets" data-i18n="cat.pets">Pets</option>
-          <option value="community" data-i18n="cat.community">Community</option>
+          <optgroup label="🚗 Cars & Vehicles" data-i18n="group.vehicles">
+            <option value="cars" data-i18n="cat.cars">Cars</option>
+            <option value="motorcycles" data-i18n="cat.motorcycles">Motorcycles</option>
+            <option value="commercial" data-i18n="cat.commercial">Commercial Vehicles</option>
+            <option value="auto_parts" data-i18n="cat.auto_parts">Auto Parts</option>
+            <option value="bicycles" data-i18n="cat.bicycles">Bicycles</option>
+          </optgroup>
+          <optgroup label="🏠 Property" data-i18n="group.property">
+            <option value="property_sale" data-i18n="cat.property_sale">Property for Sale</option>
+            <option value="property_rent" data-i18n="cat.property_rent">Property to Rent</option>
+            <option value="commercial_rent" data-i18n="cat.commercial_rent">Commercial Space</option>
+            <option value="flatmates" data-i18n="cat.flatmates">Flatmates</option>
+          </optgroup>
+          <optgroup label="💻 For Sale" data-i18n="group.forsale">
+            <option value="electronics" data-i18n="cat.electronics">Electronics</option>
+            <option value="mobiles" data-i18n="cat.mobiles">Mobile Phones</option>
+            <option value="computers" data-i18n="cat.computers">Computers</option>
+            <option value="tablets" data-i18n="cat.tablets">Tablets</option>
+            <option value="cameras" data-i18n="cat.cameras">Cameras</option>
+            <option value="tv_audio" data-i18n="cat.tv_audio">TV & Audio</option>
+            <option value="gaming" data-i18n="cat.gaming">Gaming</option>
+            <option value="furniture" data-i18n="cat.furniture">Furniture</option>
+            <option value="appliances" data-i18n="cat.appliances">Appliances</option>
+            <option value="kitchenware" data-i18n="cat.kitchenware">Kitchenware</option>
+            <option value="home_decor" data-i18n="cat.home_decor">Home Décor</option>
+            <option value="bedding" data-i18n="cat.bedding">Bedding</option>
+            <option value="fashion" data-i18n="cat.fashion">Fashion</option>
+            <option value="footwear" data-i18n="cat.footwear">Footwear</option>
+            <option value="jewelry" data-i18n="cat.jewelry">Jewelry</option>
+            <option value="watches" data-i18n="cat.watches">Watches</option>
+            <option value="bags" data-i18n="cat.bags">Bags</option>
+          </optgroup>
+          <optgroup label="⚽ Sports & Hobbies" data-i18n="group.sports">
+            <option value="sports" data-i18n="cat.sports">Sports</option>
+            <option value="outdoor" data-i18n="cat.outdoor">Outdoor</option>
+            <option value="fitness" data-i18n="cat.fitness">Fitness</option>
+            <option value="musical" data-i18n="cat.musical">Musical Instruments</option>
+            <option value="books" data-i18n="cat.books">Books</option>
+            <option value="toys" data-i18n="cat.toys">Toys</option>
+            <option value="collectibles" data-i18n="cat.collectibles">Collectibles</option>
+          </optgroup>
+          <optgroup label="🛠️ Services" data-i18n="group.services">
+            <option value="services" data-i18n="cat.services">Services</option>
+            <option value="lessons" data-i18n="cat.lessons">Lessons</option>
+            <option value="tutoring" data-i18n="cat.tutoring">Tutoring</option>
+            <option value="repair" data-i18n="cat.repair">Repair</option>
+            <option value="moving" data-i18n="cat.moving">Moving</option>
+          </optgroup>
+          <optgroup label="💼 Jobs" data-i18n="group.jobs">
+            <option value="jobs" data-i18n="cat.jobs">Jobs</option>
+            <option value="jobs_fulltime" data-i18n="cat.jobs_fulltime">Full-time</option>
+            <option value="jobs_parttime" data-i18n="cat.jobs_parttime">Part-time</option>
+            <option value="freelance" data-i18n="cat.freelance">Freelance</option>
+          </optgroup>
+          <optgroup label="🎓 Education" data-i18n="group.education">
+            <option value="education" data-i18n="cat.education">Education</option>
+            <option value="courses" data-i18n="cat.courses">Courses</option>
+            <option value="skills" data-i18n="cat.skills">Skills</option>
+          </optgroup>
+          <optgroup label="🐾 Pets" data-i18n="group.pets">
+            <option value="pets" data-i18n="cat.pets">Pets</option>
+            <option value="pet_supplies" data-i18n="cat.pet_supplies">Pet Supplies</option>
+          </optgroup>
+          <optgroup label="🌾 Agriculture & Livestock" data-i18n="group.agriculture">
+            <option value="livestock" data-i18n="cat.livestock">Livestock</option>
+            <option value="agriculture" data-i18n="cat.agriculture">Agriculture</option>
+            <option value="farming_tools" data-i18n="cat.farming_tools">Farming Tools</option>
+            <option value="aquaculture" data-i18n="cat.aquaculture">Aquaculture</option>
+          </optgroup>
+          <optgroup label="🤝 Community" data-i18n="group.community">
+            <option value="events" data-i18n="cat.events">Events</option>
+            <option value="groups" data-i18n="cat.groups">Groups</option>
+            <option value="lost_found" data-i18n="cat.lost_found">Lost & Found</option>
+            <option value="community" data-i18n="cat.community">Community</option>
+          </optgroup>
+          <optgroup label="📦 Miscellaneous" data-i18n="group.misc">
+            <option value="wanted" data-i18n="cat.wanted">Wanted</option>
+            <option value="exchange" data-i18n="cat.exchange">Exchange</option>
+            <option value="other" data-i18n="cat.other">Other</option>
+          </optgroup>
         </select>
       </div>
       <div class="field">
