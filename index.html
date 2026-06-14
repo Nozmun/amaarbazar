@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AmaarBazar — Bangladesh's Marketplace · আমারবাজার</title>
+<meta name="description" content="AmaarBazar — buy and sell anything in Bangladesh. Free local classifieds for vehicles, property, electronics, jobs and more. বাংলাদেশের বাজার।">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAV ===== -->
+<header class="nav">
+  <div class="container nav__bar">
+    <a href="index.html" class="logo">
+      <span class="logo__mark">A</span>
+      <span>
+        <span class="logo__text">Amaar<b>Bazar</b></span><br>
+        <span class="nav__tagline" data-i18n="brand.tagline">Bangladesh's Marketplace</span>
+      </span>
+    </a>
+    <nav class="nav__links">
+      <a href="browse.html" class="nav__link" data-i18n="nav.browse">Browse</a>
+      <a href="#categories" class="nav__link" data-i18n="nav.categories">Categories</a>
+      <a href="#how" class="nav__link" data-i18n="nav.how">How it works</a>
+      <a href="#trust" class="nav__link" data-i18n="nav.help">Help</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="lang-toggle" data-lang-toggle>🌐 <span data-i18n="lang.toggle">বাংলা</span></button>
+      <a href="#" class="nav__link" data-i18n="nav.login">Log in</a>
+      <a href="post.html" class="btn btn--ghost" data-i18n="nav.post">Post an Ad</a>
+      <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav class="nav__mobile">
+  <a href="browse.html" data-i18n="nav.browse">Browse</a>
+  <a href="#categories" data-i18n="nav.categories">Categories</a>
+  <a href="#how" data-i18n="nav.how">How it works</a>
+  <a href="#trust" data-i18n="nav.help">Help</a>
+  <a href="#" data-i18n="nav.login">Log in</a>
+  <a href="post.html" class="btn btn--primary" style="margin-top:1rem;justify-content:center" data-i18n="nav.post">Post an Ad</a>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+  <div class="hero__bg"></div><div class="hero__mesh"></div><div class="hero__grain"></div>
+  <div class="container hero__inner">
+    <span class="hero__kicker" data-i18n="hero.kicker">Buy. Sell. Connect.</span>
+    <h1 class="hero__title" data-i18n="hero.title">Everything you need,<br>from your neighbours.</h1>
+    <p class="hero__sub" data-i18n="hero.sub">The free local marketplace built for Bangladesh — from Dhaka to Chattogram to Sylhet.</p>
+    <form class="search" id="heroSearch">
+      <div class="search__field">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="heroQuery" type="text" data-i18n-ph="hero.search_ph" placeholder="What are you looking for?">
+      </div>
+      <div class="search__field search__field--loc">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <select><option data-i18n="hero.location_ph">All Bangladesh</option><option>Dhaka</option><option>Chattogram</option><option>Sylhet</option><option>Khulna</option><option>Rajshahi</option><option>Barishal</option><option>Rangpur</option></select>
+      </div>
+      <button class="btn btn--primary btn--lg" type="submit"><span class="shine"></span><span data-i18n="hero.search_btn">Search</span></button>
+    </form>
+    <div class="hero__popular">
+      <span data-i18n="hero.popular">Popular:</span>
+      <a href="browse.html?q=iphone">iPhone</a>
+      <a href="browse.html?cat=vehicles">Bikes</a>
+      <a href="browse.html?cat=property">Flats</a>
+      <a href="browse.html?cat=jobs">Jobs</a>
+    </div>
+    <div class="hero__stats">
+      <div><div class="stat__num" data-count="600" data-suffix="K+">600K+</div><div class="stat__label" data-i18n="hero.stat1">Active users daily</div></div>
+      <div><div class="stat__num" data-count="30" data-suffix="K+">30K+</div><div class="stat__label" data-i18n="hero.stat2">New ads daily</div></div>
+      <div><div class="stat__num" data-count="64" data-suffix="">64</div><div class="stat__label" data-i18n="hero.stat3">Cities covered</div></div>
+    </div>
+  </div>
+  <div class="hero__scroll"><span></span></div>
+</section>
+
+<!-- ===== CATEGORIES ===== -->
+<section class="section" id="categories">
+  <div class="container">
+    <div class="section__head reveal">
+      <div class="section__kicker" data-i18n="cat.heading">Browse by category</div>
+      <h2 class="section__title" data-i18n="cat.heading">Browse by category</h2>
+      <p class="section__sub" data-i18n="cat.sub">Thousands of listings across every category you can imagine.</p>
+    </div>
+    <div class="cat-grid" id="catGrid"></div>
+    <div style="text-align:center;margin-top:2.4rem" class="reveal">
+      <a href="browse.html" class="btn btn--outline btn--lg" data-i18n="cat.viewall">View all categories</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURED ===== -->
+<section class="section" style="background:#fff" id="featured">
+  <div class="container">
+    <div class="section__head reveal">
+      <div class="section__kicker" data-i18n="feat.heading">Featured listings</div>
+      <h2 class="section__title" data-i18n="feat.heading">Featured listings</h2>
+      <p class="section__sub" data-i18n="feat.sub">Hand-picked deals from trusted sellers near you.</p>
+    </div>
+    <div class="listing-grid" id="featGrid"></div>
+    <div style="text-align:center;margin-top:2.6rem" class="reveal">
+      <a href="browse.html" class="btn btn--primary btn--lg"><span class="shine"></span><span data-i18n="feat.viewall">See all listings</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" id="how">
+  <div class="container">
+    <div class="section__head reveal">
+      <div class="section__kicker" data-i18n="how.heading">How AmaarBazar works</div>
+      <h2 class="section__title" data-i18n="how.heading">How AmaarBazar works</h2>
+      <p class="section__sub" data-i18n="how.sub">Selling or buying — it takes just minutes.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal" data-d="1"><div class="step__num">1</div><h3 data-i18n="how.s1.t">Post your ad</h3><p data-i18n="how.s1.d">Snap a photo, write a description, set your price in Taka. It's free.</p></div>
+      <div class="step reveal" data-d="2"><div class="step__num">2</div><h3 data-i18n="how.s2.t">Get discovered</h3><p data-i18n="how.s2.d">Boost your ad to the top and reach thousands of local buyers instantly.</p></div>
+      <div class="step reveal" data-d="3"><div class="step__num">3</div><h3 data-i18n="how.s3.t">Sell safely</h3><p data-i18n="how.s3.d">Chat, agree a price, and pay securely with bKash, Nagad or card.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PROMO ===== -->
+<section class="promo">
+  <div class="container">
+    <div class="promo__inner reveal">
+      <div class="promo__copy">
+        <h2 data-i18n="promo.heading">Sell faster with a Featured Ad</h2>
+        <p data-i18n="promo.sub">Featured ads get up to 5× more views. Pin your listing to the top of search results for 7 days.</p>
+        <div class="promo__price" data-i18n="promo.price">from ৳299</div>
+        <a href="post.html" class="btn btn--red btn--lg"><span class="shine"></span><span data-i18n="promo.btn">Boost my ad</span></a>
+      </div>
+      <div class="promo__visual">🚀</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRUST ===== -->
+<section class="section" id="trust" style="background:#fff">
+  <div class="container">
+    <div class="section__head reveal">
+      <div class="section__kicker" data-i18n="trust.heading">Why Bangladesh trusts AmaarBazar</div>
+      <h2 class="section__title" data-i18n="trust.heading">Why Bangladesh trusts AmaarBazar</h2>
+    </div>
+    <div class="trust-grid">
+      <div class="trust reveal" data-d="1"><div class="trust__icon">✅</div><h3 data-i18n="trust.t1">Verified sellers</h3><p data-i18n="trust.d1">Every seller can verify their identity with NID for extra trust.</p></div>
+      <div class="trust reveal" data-d="2"><div class="trust__icon">🔒</div><h3 data-i18n="trust.t2">Secure payments</h3><p data-i18n="trust.d2">Pay and get paid through bKash, Nagad, Rocket and cards.</p></div>
+      <div class="trust reveal" data-d="3"><div class="trust__icon">🇧🇩</div><h3 data-i18n="trust.t3">Local everywhere</h3><p data-i18n="trust.d3">Listings in all 64 districts, in Bangla and English.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== APP CTA ===== -->
+<section class="appcta">
+  <div class="container">
+    <div class="appcta__inner reveal">
+      <h2 data-i18n="app.heading">Take AmaarBazar everywhere</h2>
+      <p data-i18n="app.sub">Buy and sell on the move. Get the app for iOS and Android.</p>
+      <div class="appcta__badges">
+        <a href="#" class="store"> <span style="font-size:1.6rem"></span><span><small>Download on the</small><b>App Store</b></span></a>
+        <a href="#" class="store"> <span style="font-size:1.6rem">▶</span><span><small>Get it on</small><b>Google Play</b></span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <a href="index.html" class="logo"><span class="logo__mark">A</span><span class="logo__text">Amaar<b>Bazar</b></span></a>
+        <p data-i18n="hero.sub">The free local marketplace built for Bangladesh.</p>
+        <div class="footer__socials">
+          <a href="#" aria-label="Facebook">f</a><a href="#" aria-label="Instagram">◎</a><a href="#" aria-label="YouTube">▶</a><a href="#" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+      <div class="footer__col"><h5 data-i18n="foot.about">About</h5><a href="#" data-i18n="foot.aboutus">About us</a><a href="#" data-i18n="foot.careers">Careers</a><a href="#" data-i18n="foot.press">Press</a></div>
+      <div class="footer__col"><h5 data-i18n="foot.help">Help</h5><a href="#" data-i18n="foot.safety">Safety tips</a><a href="#" data-i18n="foot.contact">Contact us</a><a href="#" data-i18n="foot.faq">FAQ</a></div>
+      <div class="footer__col"><h5 data-i18n="foot.legal">Legal</h5><a href="#" data-i18n="foot.terms">Terms</a><a href="#" data-i18n="foot.privacy">Privacy</a><a href="#" data-i18n="foot.cookies">Cookies</a></div>
+      <div class="footer__col"><h5 data-i18n="cat.heading">Categories</h5><a href="browse.html?cat=vehicles" data-i18n="cat.vehicles">Vehicles</a><a href="browse.html?cat=property" data-i18n="cat.property">Property</a><a href="browse.html?cat=jobs" data-i18n="cat.jobs">Jobs</a></div>
+    </div>
+    <div class="footer__bottom"><span data-i18n="foot.rights">© 2026 AmaarBazar. All rights reserved. Made in Bangladesh 🇧🇩</span></div>
+  </div>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
