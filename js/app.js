@@ -83,38 +83,83 @@
     els.forEach(el => io.observe(el));
   }
 
-  /* ---- render categories (Gumtree-style hierarchical) ---- */
-  function renderCategories(){
-    const grid = $('#catGrid'); if(!grid) return;
-    let cardIndex = 0;
+  /* ---- group icons (one per top-level group) ---- */
+  const GROUP_ICON = {
+    'group.vehicles':'🚗','group.forsale':'🏷️','group.services':'🛠️',
+    'group.property':'🏠','group.pets':'🐾','group.jobs':'💼','group.community':'🤝'
+  };
+  const slug = (k) => k.split('.')[1];
 
-    grid.innerHTML = CATEGORY_GROUPS.map((group, gidx) => {
-      const mainSubcats = group.categories.slice(0, 5); // Show first 5
-      return `
-        <div class="cat-main" style="--i:${gidx}">
-          <div class="cat-main__header">
-            <div class="cat-main__title" data-i18n="${group.key}">${I18nStore.get(group.key)}</div>
-            <a href="browse.html?group=${group.key.split('.')[1]}" class="cat-main__link">Browse all</a>
-          </div>
-          <div class="cat-main__subcats">
-            ${mainSubcats.map((c, idx) => `
-              <a href="browse.html?cat=${c.id}" class="cat-subcat" style="--i:${idx}">
-                <span class="cat-subcat__icon">${c.icon}</span>
-                <span class="cat-subcat__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
-              </a>
-            `).join('')}
-            ${group.categories.length > 5 ? `
-              <a href="browse.html?group=${group.key.split('.')[1]}" class="cat-subcat cat-subcat--more" style="--i:5">
-                <span class="cat-subcat__icon">+</span>
-                <span class="cat-subcat__name">More (${group.categories.length - 5})</span>
-              </a>
-            ` : ''}
-          </div>
+  /* ---- Gumtree-style homepage browser: left rail + flyout + ad ---- */
+  let activeGroup = 0;
+  function renderCatBrowser(){
+    const rail = $('#catRail'), panel = $('#catPanel');
+    if(!rail || !panel) return;
+
+    rail.innerHTML = CATEGORY_GROUPS.map((g, i) => `
+      <button class="cat-rail__item${i===activeGroup?' active':''}" data-group="${i}" type="button">
+        <span class="ic">${GROUP_ICON[g.key]||'📦'}</span>
+        <span data-i18n="${g.key}">${I18nStore.get(g.key)}</span>
+        <span class="arrow">›</span>
+      </button>`).join('');
+
+    function paint(i){
+      const g = CATEGORY_GROUPS[i];
+      panel.innerHTML = `
+        <div class="cat-panel__head">
+          <div class="cat-panel__title" data-i18n="${g.key}">${I18nStore.get(g.key)}</div>
+          <a href="browse.html?group=${slug(g.key)}" class="cat-panel__all">${I18nStore.get('cat.viewall')} ›</a>
+        </div>
+        <div class="cat-panel__grid">
+          ${g.categories.map((c, idx) => `
+            <a href="browse.html?cat=${c.id}" class="cat-flink" style="--i:${idx}">
+              <span class="ic">${c.icon}</span>
+              <span data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
+            </a>`).join('')}
         </div>`;
-    }).join('');
+    }
+    paint(activeGroup);
 
-    $$('.cat-main', grid).forEach(reveal);
+    $$('.cat-rail__item', rail).forEach(btn => {
+      const i = +btn.dataset.group;
+      const activate = () => {
+        activeGroup = i;
+        $$('.cat-rail__item', rail).forEach(b => b.classList.toggle('active', b===btn));
+        paint(i);
+      };
+      btn.addEventListener('mouseenter', activate);
+      btn.addEventListener('click', activate);
+      btn.addEventListener('focus', activate);
+    });
   }
+
+  /* ---- Gumtree-style nav mega menu (all groups across & down) ---- */
+  function renderMegaMenu(){
+    const mega = $('#megaPanel'); if(!mega) return;
+    mega.innerHTML = `
+      <div class="mega__grid">
+        ${CATEGORY_GROUPS.map(g => `
+          <div class="mega__group">
+            <a class="mega__group-title" href="browse.html?group=${slug(g.key)}">
+              <span>${GROUP_ICON[g.key]||'📦'}</span>
+              <span data-i18n="${g.key}">${I18nStore.get(g.key)}</span>
+            </a>
+            ${g.categories.slice(0,6).map(c => `
+              <a href="browse.html?cat=${c.id}" class="mega__link">
+                <span class="ic">${c.icon}</span>
+                <span data-i18n="${c.key}">${I18nStore.get(c.key)}</span>
+              </a>`).join('')}
+            ${g.categories.length>6 ? `<a href="browse.html?group=${slug(g.key)}" class="mega__link" style="color:var(--green)">+${g.categories.length-6} ${I18nStore.get('cat.more')||'more'}</a>`:''}
+          </div>`).join('')}
+      </div>
+      <div class="mega__foot">
+        <span style="color:var(--grey-1);font-size:.86rem">${I18nStore.get('cat.sub')}</span>
+        <a href="browse.html">${I18nStore.get('cat.viewall')} →</a>
+      </div>`;
+  }
+
+  /* ---- keep old name working for any callers ---- */
+  function renderCategories(){ renderCatBrowser(); renderMegaMenu(); }
 
   /* ---- card template ---- */
   function cardHTML(l, i = 0){

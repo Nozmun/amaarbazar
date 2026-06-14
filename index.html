@@ -44,7 +44,10 @@
     </a>
     <nav class="nav__links">
       <a href="browse.html" class="nav__link" data-i18n="nav.browse">Browse</a>
-      <a href="#categories" class="nav__link" data-i18n="nav.categories">Categories</a>
+      <div class="nav__cats">
+        <a href="#categories" class="nav__link" data-i18n="nav.categories">Categories</a><span class="caret"> ▾</span>
+        <div class="mega" id="megaPanel"></div>
+      </div>
       <a href="#how" class="nav__link" data-i18n="nav.how">How it works</a>
       <a href="#trust" class="nav__link" data-i18n="nav.help">Help</a>
     </nav>
@@ -53,6 +56,8 @@
       <a href="#" class="nav__link" data-i18n="nav.login">Log in</a>
       <a href="post.html" class="btn btn--ghost" data-i18n="nav.post">Post an Ad</a>
       <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+      <!-- auth.js injects the login/register modal here -->
+
     </div>
   </div>
 </header>
@@ -107,7 +112,26 @@
       <h2 class="section__title" data-i18n="cat.heading">Browse by category</h2>
       <p class="section__sub" data-i18n="cat.sub">Thousands of listings across every category you can imagine.</p>
     </div>
-    <div class="cat-grid" id="catGrid"></div>
+    <div class="cat-browser reveal">
+      <aside class="cat-rail" id="catRail"></aside>
+      <div class="cat-panel" id="catPanel"></div>
+      <aside class="ad-rail">
+        <div class="ad-slot ad-slot--gold">
+          <span class="ad-slot__tag" data-i18n="ad.label">Advertisement</span>
+          <div class="ad-slot__art">📣</div>
+          <h4 data-i18n="ad.promote_t">Promote your business</h4>
+          <p data-i18n="ad.promote_d">Reach 600K+ daily buyers across Bangladesh.</p>
+          <a href="post.html" class="btn btn--primary btn--block" data-i18n="ad.promote_btn">Advertise here</a>
+        </div>
+        <div class="ad-slot ad-slot--rose">
+          <span class="ad-slot__tag" data-i18n="ad.label">Advertisement</span>
+          <div class="ad-slot__art">⭐</div>
+          <h4 data-i18n="ad.feature_t">Featured ads sell 5× faster</h4>
+          <p data-i18n="ad.feature_d">Pin your listing to the top from ৳299.</p>
+          <a href="post.html" class="btn btn--red btn--block" data-i18n="ad.feature_btn">Boost an ad</a>
+        </div>
+      </aside>
+    </div>
     <div style="text-align:center;margin-top:2.4rem" class="reveal">
       <a href="browse.html" class="btn btn--outline btn--lg" data-i18n="cat.viewall">View all categories</a>
     </div>
@@ -211,6 +235,7 @@
 
 <script src="js/i18n.js"></script>
 <script src="js/data.js"></script>
+<script src="js/auth.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

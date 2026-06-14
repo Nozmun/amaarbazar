@@ -89,16 +89,17 @@
     document.getElementById('loginModal').classList.remove('active');
     document.getElementById('dashboard').classList.remove('hidden');
     loadDashboardData();
+    showSection('stats');
   }
 
   window.showSection = function(sectionId) {
-    document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+    document.querySelectorAll('.section').forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });
     document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
     const section = document.getElementById(sectionId);
-    const link = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+    const link = document.querySelector(`[data-section="${sectionId}"]`);
 
-    if (section) section.classList.remove('hidden');
+    if (section) { section.classList.add('active'); section.classList.remove('hidden'); }
     if (link) link.classList.add('active');
 
     // Load section-specific data
@@ -238,8 +239,8 @@
         <td>${formatDate(user.created)}</td>
         <td>${user.lastLogin ? formatDate(user.lastLogin) : 'Never'}</td>
         <td>
-          <button class="btn-small" onclick="editUser('${user.id}')">Edit</button>
-          <button class="btn-small btn-danger" onclick="deleteUser('${user.id}')">Delete</button>
+          <button class="btn-small" data-action="editUser" data-id="${user.id}">Edit</button>
+          <button class="btn-small btn-danger" data-action="deleteUser" data-id="${user.id}">Delete</button>
         </td>
       </tr>
     `).join('');
@@ -298,7 +299,7 @@
         <td>৳${listing.price.toLocaleString()}</td>
         <td><span class="status-badge active">Active</span></td>
         <td>
-          <button class="btn-small" onclick="deleteListing(${listing.id})">Delete</button>
+          <button class="btn-small btn-danger" data-action="deleteListing" data-id="${listing.id}">Delete</button>
         </td>
       </tr>
     `).join('');
@@ -325,7 +326,7 @@
         <td>${cat.icon}</td>
         <td>${Math.floor(Math.random() * 50)}</td>
         <td>
-          <button class="btn-small" onclick="editCategory('${cat.id}')">Edit</button>
+          <button class="btn-small" data-action="editCategory" data-id="${cat.id}">Edit</button>
         </td>
       </tr>
     `).join('');
@@ -444,9 +445,41 @@
     }
   });
 
+  /* ---- CSP-safe event wiring (no inline handlers) ---- */
+  const ACTIONS = {
+    section: (el) => showSection(el.dataset.section),
+    logout: () => adminLogout(),
+    addCategory: () => addCategory(),
+    createUser: () => openCreateUserModal(),
+    closeUser: () => closeUserModal(),
+    clearAudit: () => clearAuditLog(),
+    saveSettings: () => saveSettings(),
+    editUser: (el) => editUser(el.dataset.id),
+    deleteUser: (el) => deleteUser(el.dataset.id),
+    deleteListing: (el) => deleteListing(el.dataset.id),
+    editCategory: (el) => editCategory(el.dataset.id)
+  };
+
+  function wireEvents() {
+    // Delegated clicks for all [data-action] elements (works for dynamic rows too)
+    document.addEventListener('click', (e) => {
+      const el = e.target.closest('[data-action]');
+      if (!el) return;
+      const fn = ACTIONS[el.dataset.action];
+      if (fn) { e.preventDefault(); fn(el); }
+    });
+    // Forms
+    document.getElementById('loginForm')?.addEventListener('submit', adminLogin);
+    document.getElementById('userForm')?.addEventListener('submit', saveUser);
+    // Audit filters
+    document.getElementById('auditFilterUser')?.addEventListener('keyup', filterAuditLog);
+    document.getElementById('auditFilterAction')?.addEventListener('change', filterAuditLog);
+  }
+
   /* ---- Initialize ---- */
   window.addEventListener('load', function() {
     initializeStorage();
+    wireEvents();
     const session = getSession();
     if (session) {
       showDashboard();

@@ -142,7 +142,6 @@ textarea:focus {
 }
 
 .section { display: none; }
-.section:first-of-type { display: block; }
 .section.active { display: block; }
 
 .stats-grid {

@@ -8,7 +8,7 @@
 <meta name="description" content="AmaarBazaar Administrator Dashboard">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/admin.css?v=2">
 </head>
 <body>
 
@@ -16,7 +16,7 @@
 <div id="loginModal" class="modal-overlay active">
   <div class="modal-panel">
     <h2>Admin Login</h2>
-    <form id="loginForm" onsubmit="adminLogin(event)">
+    <form id="loginForm">
       <input type="text" id="username" placeholder="Username" required>
       <input type="password" id="password" placeholder="Password" required>
       <button type="submit" class="btn">Sign In</button>
@@ -32,19 +32,19 @@
       <h3>AmaarBazaar Admin</h3>
     </div>
     <ul class="admin-nav__menu">
-      <li><a href="#" onclick="showSection('stats')" class="nav-link active">Dashboard</a></li>
-      <li><a href="#" onclick="showSection('users')" class="nav-link">User Management</a></li>
-      <li><a href="#" onclick="showSection('listings')" class="nav-link">Manage Listings</a></li>
-      <li><a href="#" onclick="showSection('categories')" class="nav-link">Categories</a></li>
-      <li><a href="#" onclick="showSection('audit')" class="nav-link">Audit Log</a></li>
-      <li><a href="#" onclick="showSection('settings')" class="nav-link">Settings</a></li>
-      <li><a href="#" onclick="adminLogout()" class="nav-link logout">Logout</a></li>
+      <li><a href="#" data-action="section" data-section="stats" class="nav-link active">Dashboard</a></li>
+      <li><a href="#" data-action="section" data-section="users" class="nav-link">User Management</a></li>
+      <li><a href="#" data-action="section" data-section="listings" class="nav-link">Manage Listings</a></li>
+      <li><a href="#" data-action="section" data-section="categories" class="nav-link">Categories</a></li>
+      <li><a href="#" data-action="section" data-section="audit" class="nav-link">Audit Log</a></li>
+      <li><a href="#" data-action="section" data-section="settings" class="nav-link">Settings</a></li>
+      <li><a href="#" data-action="logout" class="nav-link logout">Logout</a></li>
     </ul>
   </nav>
 
   <main class="admin-content">
     <!-- Stats Section -->
-    <section id="stats" class="section">
+    <section id="stats" class="section active">
       <h2>Dashboard Overview</h2>
       <div class="stats-grid">
         <div class="stat-card">
@@ -89,7 +89,7 @@
     <!-- Categories Section -->
     <section id="categories" class="section hidden">
       <h2>Manage Categories</h2>
-      <button class="btn" onclick="addCategory()">+ Add Category</button>
+      <button class="btn" data-action="addCategory">+ Add Category</button>
       <table class="table">
         <thead>
           <tr>
@@ -109,7 +109,7 @@
     <section id="users" class="section hidden">
       <h2>User Management</h2>
       <div class="user-actions">
-        <button class="btn btn-primary" onclick="openCreateUserModal()">+ Create New User</button>
+        <button class="btn btn-primary" data-action="createUser">+ Create New User</button>
       </div>
       <table class="table">
         <thead>
@@ -130,10 +130,10 @@
     </section>
 
     <!-- Create/Edit User Modal -->
-    <div id="userModal" class="modal-overlay">
+    <div id="userModal" class="modal-overlay hidden">
       <div class="modal-panel">
         <h3 id="userModalTitle">Create New User</h3>
-        <form id="userForm" onsubmit="saveUser(event)">
+        <form id="userForm">
           <input type="hidden" id="userId">
           <label>Username</label>
           <input type="text" id="userUsername" placeholder="username" required>
@@ -153,7 +153,7 @@
           </label>
           <div class="modal-actions">
             <button type="submit" class="btn btn-primary">Save User</button>
-            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+            <button type="button" class="btn btn-secondary" data-action="closeUser">Cancel</button>
           </div>
           <p id="userError" class="error"></p>
         </form>
@@ -164,8 +164,8 @@
     <section id="audit" class="section hidden">
       <h2>Admin Activity Log</h2>
       <div class="audit-filters">
-        <input type="text" id="auditFilterUser" placeholder="Filter by username..." onkeyup="filterAuditLog()">
-        <select id="auditFilterAction" onchange="filterAuditLog()">
+        <input type="text" id="auditFilterUser" placeholder="Filter by username...">
+        <select id="auditFilterAction">
           <option value="">All Actions</option>
           <option value="login">Login</option>
           <option value="logout">Logout</option>
@@ -176,7 +176,7 @@
           <option value="category_edit">Edit Category</option>
           <option value="settings_change">Change Settings</option>
         </select>
-        <button class="btn btn-secondary" onclick="clearAuditLog()">Clear Log</button>
+        <button class="btn btn-secondary" data-action="clearAudit">Clear Log</button>
       </div>
       <table class="table">
         <thead>
@@ -203,12 +203,13 @@
         <input type="text" id="siteTitle" placeholder="AmaarBazaar" value="AmaarBazaar">
         <label>Commission Rate (%)</label>
         <input type="number" id="commissionRate" min="0" max="100" value="5">
-        <button class="btn" onclick="saveSettings()">Save Settings</button>
+        <button class="btn" data-action="saveSettings">Save Settings</button>
       </div>
     </section>
   </main>
 </div>
 
-<script src="js/admin.js"></script>
+<script src="js/data.js?v=2"></script>
+<script src="js/admin.js?v=2"></script>
 </body>
 </html>
