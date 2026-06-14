@@ -8,7 +8,7 @@
 <meta name="description" content="AmaarBazaar Administrator Dashboard">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="stylesheet" href="css/admin.css?v=3">
+<link rel="stylesheet" href="css/admin.css?v=4">
 </head>
 <body>
 
@@ -229,6 +229,10 @@
           <input type="number" id="listingPrice" min="0" placeholder="0" required>
           <label>Location</label>
           <input type="text" id="listingLoc" placeholder="e.g. Gulshan, Dhaka" required>
+          <label>Phone (shown to buyers)</label>
+          <input type="tel" id="listingPhone" placeholder="01XXXXXXXXX" maxlength="11">
+          <label>Email (optional)</label>
+          <input type="email" id="listingEmail" placeholder="seller@example.com">
           <label><input type="checkbox" id="listingFeatured"> Featured listing</label>
           <div class="modal-actions">
             <button type="submit" class="btn btn-primary">Save Listing</button>
@@ -260,9 +264,9 @@
       </div>
     </div>
 
-<script src="js/i18n.js?v=3"></script>
-<script src="js/data.js?v=3"></script>
-<script src="js/store.js?v=3"></script>
-<script src="js/admin.js?v=3"></script>
+<script src="js/i18n.js?v=4"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/store.js?v=4"></script>
+<script src="js/admin.js?v=4"></script>
 </body>
 </html>

@@ -176,11 +176,13 @@
     const days = I18nStore.lang === 'bn' ? toBnNum(l.days) : l.days;
     const ago = I18nStore.lang === 'bn' ? `${days} দিন আগে` : `${days}d ago`;
     return `
-      <article class="card" data-id="${l.id}" style="--i:${i % 8}">
+      <article class="card" data-id="${l.id}" style="--i:${i % 8}" tabindex="0">
         <div class="card__media">
           <img src="${l.img}" alt="${t}" loading="lazy">
+          <div class="card__shine"></div>
           ${l.featured ? `<span class="card__badge" data-i18n="feat.featured">${I18nStore.get('feat.featured')}</span>`:''}
           <button class="card__fav" aria-label="Save">♡</button>
+          <span class="card__view"><span data-i18n="feat.view">View details</span> →</span>
         </div>
         <div class="card__body">
           <div class="card__price" data-price="${l.price}">${I18nStore.fmtPrice(l.price)}</div>
@@ -199,10 +201,94 @@
     }));
     $$('.card', scope).forEach(c => {
       reveal(c);
-      c.addEventListener('click', () => {
-        toast(I18nStore.lang==='bn' ? 'বিজ্ঞাপন খোলা হচ্ছে…' : 'Opening listing…');
-      });
+      const open = () => openListing(c.dataset.id);
+      c.addEventListener('click', open);
+      c.addEventListener('keydown', (e) => { if(e.key==='Enter'){ e.preventDefault(); open(); }});
     });
+  }
+
+  /* ---- listing detail modal (injected once, reused on every page) ---- */
+  function ensureListingModal(){
+    if($('#listingDetail')) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+<div class="modal" id="listingDetail" aria-hidden="true">
+  <div class="modal__overlay" data-ld-close></div>
+  <div class="modal__panel modal__panel--listing">
+    <button class="modal__close" data-ld-close aria-label="Close">✕</button>
+    <div class="ld__media"><img id="ldImg" alt=""><span id="ldBadge" class="card__badge" style="display:none" data-i18n="feat.featured">Featured</span></div>
+    <div class="ld__body">
+      <div class="ld__price" id="ldPrice"></div>
+      <h3 class="ld__title" id="ldTitle"></h3>
+      <div class="ld__meta">
+        <span id="ldLoc"></span>
+        <span id="ldCat" class="ld__chip"></span>
+        <span id="ldDays" class="ld__days"></span>
+      </div>
+      <p class="ld__desc" id="ldDesc"></p>
+      <div class="ld__contact">
+        <h4 data-i18n="ld.contact">Contact seller</h4>
+        <div class="ld__actions">
+          <button id="ldPhoneBtn" class="btn btn--primary" type="button"><span data-i18n="ld.show_phone">📞 Show phone number</span></button>
+          <a id="ldPhoneLink" class="btn btn--primary" style="display:none"></a>
+          <a id="ldEmail" class="btn btn--outline" data-i18n="ld.email_seller">✉️ Email seller</a>
+        </div>
+        <div class="ld__safety">🛡️ <span data-i18n="ld.safety">Tip: meet in a public place and inspect items before paying.</span></div>
+      </div>
+    </div>
+  </div>
+</div>`;
+    document.body.appendChild(wrap.firstElementChild);
+    $$('[data-ld-close]').forEach(b => b.addEventListener('click', closeListing));
+    document.addEventListener('keydown', (e) => { if(e.key==='Escape') closeListing(); });
+  }
+  function closeListing(){
+    const m = $('#listingDetail'); if(!m) return;
+    m.classList.remove('open'); m.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';
+  }
+  function openListing(id){
+    ensureListingModal();
+    const l = window.Store ? Store.getListing(id) : null;
+    if(!l){ toast('Listing not found.'); return; }
+    const lang = I18nStore.lang;
+    const title = (l.title && (l.title[lang]||l.title.en)) || 'Listing';
+    const loc = (l.loc && (l.loc[lang]||l.loc.en)) || '';
+    const days = lang==='bn' ? toBnNum(l.days||0) : (l.days||0);
+    $('#ldImg').src = l.img || ''; $('#ldImg').alt = title;
+    $('#ldBadge').style.display = l.featured ? '' : 'none';
+    $('#ldPrice').textContent = I18nStore.fmtPrice(l.price||0);
+    $('#ldTitle').textContent = title;
+    $('#ldLoc').textContent = '📍 ' + loc;
+    $('#ldCat').textContent = window.Store ? Store.catNameById(l.cat) : l.cat;
+    $('#ldDays').textContent = (lang==='bn' ? `${days} দিন আগে` : `${days}d ago`);
+    $('#ldDesc').textContent = l.desc || '';
+    $('#ldDesc').style.display = l.desc ? '' : 'none';
+    // contact: phone hidden behind reveal button
+    const phoneBtn = $('#ldPhoneBtn'), phoneLink = $('#ldPhoneLink');
+    phoneLink.style.display = 'none';
+    if(l.phone){
+      phoneBtn.style.display = '';
+      phoneBtn.disabled = false;
+      phoneBtn.onclick = () => {
+        phoneBtn.style.display = 'none';
+        phoneLink.style.display = '';
+        phoneLink.textContent = '📞 ' + l.phone;
+        phoneLink.href = 'tel:' + l.phone;
+      };
+    } else {
+      phoneBtn.style.display = 'none';
+      phoneLink.style.display = '';
+      phoneLink.textContent = t('ld.no_phone','Phone number not provided.');
+      phoneLink.removeAttribute('href');
+    }
+    const emailBtn = $('#ldEmail');
+    if(l.email){ emailBtn.style.display=''; emailBtn.href = 'mailto:'+l.email+'?subject='+encodeURIComponent('Interested in: '+title); }
+    else emailBtn.style.display='none';
+    $('#listingDetail').classList.add('open');
+    $('#listingDetail').setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+    I18nStore.apply();
   }
 
   /* ---- featured on homepage ---- */
@@ -339,13 +425,15 @@
     const desc=($('#pDesc')?.value||'').trim();
     const loc=($('#pLoc')?.value||'').trim();
     const email=($('#pEmail')?.value||'').trim();
+    const phone=($('#pPhone')?.value||'').replace(/\s/g,'');
     if(!title) return fail(t('post.err_title','Please enter an ad title.'));
     if(!cat) return fail(t('post.err_cat','Please choose a category.'));
     if(!loc) return fail(t('post.err_loc','Please enter a location.'));
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(t('post.err_email','Enter a valid email for confirmation.'));
+    if(!/^01\d{9}$/.test(phone)) return fail(t('post.err_phone','Enter a valid 11-digit mobile number (01XXXXXXXXX).'));
     const group = window.Store ? Store.findGroupOfCat(cat) : '';
     const img = uploadedImg || GROUP_IMG[group] || GROUP_IMG.forsale;
-    return { title:{en:title,bn:title}, cat, group, price, desc, loc:{en:loc,bn:loc}, email, img, days:0 };
+    return { title:{en:title,bn:title}, cat, group, price, desc, loc:{en:loc,bn:loc}, email, phone, img, days:0 };
   }
 
   function publishAd(data, tier){
@@ -393,6 +481,7 @@
       btn.setAttribute('data-i18n', key);
       btn.textContent = I18nStore.get(key);
     }
+    $('#pPhone')?.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,11); });
     const dz = $('#dropzone'), fileIn = $('#photoInput');
     dz?.addEventListener('click', () => fileIn.click());
     fileIn?.addEventListener('change', () => {
@@ -528,7 +617,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     initLang(); populateCategorySelects(); initNav(); renderCategories(); renderFeatured();
     initReveal(); initCounters(); initSearch(); initGeo();
-    initBrowse(); initPost(); initPaymentModal();
+    initBrowse(); initPost(); initPaymentModal(); ensureListingModal();
     // keep every screen in sync when the store changes (admin edits, new posts, etc.)
     if(window.Store) Store.on(() => { populateCategorySelects(); renderCategories(); renderFeatured(); });
     // re-apply translations to freshly rendered nodes

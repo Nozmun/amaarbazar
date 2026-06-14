@@ -338,6 +338,8 @@
     populateListingCatSelect(l.cat);
     document.getElementById('listingPrice').value = l.price;
     document.getElementById('listingLoc').value = (l.loc && l.loc.en) || '';
+    document.getElementById('listingPhone').value = l.phone || '';
+    document.getElementById('listingEmail').value = l.email || '';
     document.getElementById('listingFeatured').checked = !!l.featured;
     document.getElementById('listingError').textContent = '';
     document.getElementById('listingModal').classList.remove('hidden');
@@ -350,11 +352,13 @@
     const cat = document.getElementById('listingCat').value;
     const price = +document.getElementById('listingPrice').value || 0;
     const loc = document.getElementById('listingLoc').value.trim();
+    const phone = document.getElementById('listingPhone').value.replace(/\D/g, '');
+    const email = document.getElementById('listingEmail').value.trim();
     const featured = document.getElementById('listingFeatured').checked;
     const err = document.getElementById('listingError');
     if (!title || !cat || !loc) { err.textContent = 'Title, category and location are required.'; return; }
     const group = Store.findGroupOfCat(cat) || '';
-    const data = { title: { en: title, bn: title }, cat, group, price, loc: { en: loc, bn: loc }, featured };
+    const data = { title: { en: title, bn: title }, cat, group, price, loc: { en: loc, bn: loc }, phone, email, featured };
     if (id) {
       Store.updateListing(id, data);
       logActivity('listing_edit', `Edited listing #${id}: ${title}`, 'success');
