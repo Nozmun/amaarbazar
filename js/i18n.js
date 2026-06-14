@@ -22,6 +22,7 @@ const I18N = {
     "hero.stat2": "New ads daily",
     "hero.stat3": "Cities covered",
 
+    "cat.kicker": "Explore the marketplace",
     "cat.heading": "Browse by category",
     "cat.sub": "Thousands of listings across every category you can imagine.",
     "cat.vehicles": "Vehicles",
@@ -34,6 +35,7 @@ const I18N = {
     "cat.community": "Community",
     "cat.viewall": "View all categories",
 
+    "feat.kicker": "Hand-picked for you",
     "feat.heading": "Featured listings",
     "feat.sub": "Hand-picked deals from trusted sellers near you.",
     "feat.featured": "Featured",
@@ -41,6 +43,7 @@ const I18N = {
     "card.contact": "Contact seller",
     "card.buy": "Buy now",
 
+    "how.kicker": "Simple & fast",
     "how.heading": "How AmaarBazar works",
     "how.sub": "Selling or buying — it takes just minutes.",
     "how.s1.t": "Post your ad",
@@ -55,6 +58,7 @@ const I18N = {
     "promo.price": "from ৳299",
     "promo.btn": "Boost my ad",
 
+    "trust.kicker": "Trusted nationwide",
     "trust.heading": "Why Bangladesh trusts AmaarBazar",
     "trust.t1": "Verified sellers",
     "trust.d1": "Every seller can verify their identity with NID for extra trust.",
@@ -165,6 +169,7 @@ const I18N = {
     "hero.stat2": "দৈনিক নতুন বিজ্ঞাপন",
     "hero.stat3": "শহর জুড়ে",
 
+    "cat.kicker": "বাজার ঘুরে দেখুন",
     "cat.heading": "ক্যাটাগরি অনুযায়ী ব্রাউজ করুন",
     "cat.sub": "আপনার কল্পনার সব ক্যাটাগরিতে হাজারো বিজ্ঞাপন।",
     "cat.vehicles": "যানবাহন",
@@ -177,6 +182,7 @@ const I18N = {
     "cat.community": "কমিউনিটি",
     "cat.viewall": "সব ক্যাটাগরি দেখুন",
 
+    "feat.kicker": "আপনার জন্য বাছাই করা",
     "feat.heading": "ফিচার্ড বিজ্ঞাপন",
     "feat.sub": "আপনার কাছের বিশ্বস্ত বিক্রেতাদের বাছাই করা অফার।",
     "feat.featured": "ফিচার্ড",
@@ -184,6 +190,7 @@ const I18N = {
     "card.contact": "বিক্রেতার সাথে যোগাযোগ",
     "card.buy": "এখনই কিনুন",
 
+    "how.kicker": "সহজ ও দ্রুত",
     "how.heading": "আমারবাজার যেভাবে কাজ করে",
     "how.sub": "বিক্রি বা কেনা — মাত্র কয়েক মিনিটেই।",
     "how.s1.t": "বিজ্ঞাপন দিন",
@@ -198,6 +205,7 @@ const I18N = {
     "promo.price": "৳২৯৯ থেকে",
     "promo.btn": "বিজ্ঞাপন বুস্ট করুন",
 
+    "trust.kicker": "সারাদেশে বিশ্বস্ত",
     "trust.heading": "কেন বাংলাদেশ আমারবাজারে আস্থা রাখে",
     "trust.t1": "যাচাইকৃত বিক্রেতা",
     "trust.d1": "প্রতিটি বিক্রেতা NID দিয়ে পরিচয় যাচাই করতে পারেন।",

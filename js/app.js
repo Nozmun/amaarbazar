@@ -11,10 +11,17 @@
       btn.addEventListener('click', () => I18nStore.toggle()));
   }
 
-  /* ---- sticky nav + mobile menu ---- */
+  /* ---- sticky nav + mobile menu + scroll progress ---- */
   function initNav(){
     const nav = $('.nav');
-    const onScroll = () => nav && nav.classList.toggle('scrolled', window.scrollY > 40);
+    const bar = document.createElement('div');
+    bar.className = 'scroll-progress';
+    document.body.appendChild(bar);
+    const onScroll = () => {
+      if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
+      const h = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+    };
     onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
     const burger = $('.nav__burger'), mobile = $('.nav__mobile');
     if(burger && mobile){
@@ -23,13 +30,14 @@
     }
   }
 
-  /* ---- scroll reveal ---- */
-  function initReveal(){
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }});
-    }, {threshold:.12, rootMargin:'0px 0px -40px'});
-    $$('.reveal').forEach(el => io.observe(el));
-  }
+  /* ---- scroll reveal (shared observer; works for static + injected nodes) ---- */
+  const revealIO = ('IntersectionObserver' in window)
+    ? new IntersectionObserver((entries) => {
+        entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); revealIO.unobserve(e.target); }});
+      }, {threshold:.12, rootMargin:'0px 0px -40px'})
+    : null;
+  function reveal(el){ if(revealIO) revealIO.observe(el); else el.classList.add('in'); }
+  function initReveal(){ $$('.reveal').forEach(reveal); }
 
   /* ---- animated counters ---- */
   function initCounters(){
@@ -57,20 +65,21 @@
   function renderCategories(){
     const grid = $('#catGrid'); if(!grid) return;
     grid.innerHTML = CATEGORIES.map((c,i) => `
-      <a href="browse.html?cat=${c.id}" class="cat-card reveal" data-d="${(i%4)+1}">
+      <a href="browse.html?cat=${c.id}" class="cat-card" style="--i:${i}">
         <div class="cat-card__icon">${c.icon}</div>
         <div class="cat-card__name" data-i18n="${c.key}">${I18nStore.get(c.key)}</div>
       </a>`).join('');
+    $$('.cat-card', grid).forEach(reveal);
   }
 
   /* ---- card template ---- */
-  function cardHTML(l){
+  function cardHTML(l, i = 0){
     const t = l.title[I18nStore.lang] || l.title.en;
     const loc = l.loc[I18nStore.lang] || l.loc.en;
     const days = I18nStore.lang === 'bn' ? toBnNum(l.days) : l.days;
     const ago = I18nStore.lang === 'bn' ? `${days} দিন আগে` : `${days}d ago`;
     return `
-      <article class="card" data-id="${l.id}">
+      <article class="card" data-id="${l.id}" style="--i:${i % 8}">
         <div class="card__media">
           <img src="${l.img}" alt="${t}" loading="lazy">
           ${l.featured ? `<span class="card__badge" data-i18n="feat.featured">${I18nStore.get('feat.featured')}</span>`:''}
@@ -91,9 +100,12 @@
       e.stopPropagation(); b.classList.toggle('on');
       b.textContent = b.classList.contains('on') ? '♥' : '♡';
     }));
-    $$('.card', scope).forEach(c => c.addEventListener('click', () => {
-      toast(I18nStore.lang==='bn' ? 'বিজ্ঞাপন খোলা হচ্ছে…' : 'Opening listing…');
-    }));
+    $$('.card', scope).forEach(c => {
+      reveal(c);
+      c.addEventListener('click', () => {
+        toast(I18nStore.lang==='bn' ? 'বিজ্ঞাপন খোলা হচ্ছে…' : 'Opening listing…');
+      });
+    });
   }
 
   /* ---- featured on homepage ---- */
