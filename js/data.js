@@ -1,149 +1,133 @@
-// AmaarBazaar — sample listings. Bilingual title/location, BDT prices.
+// AmaarBazaar — Gumtree-style hierarchical categories
 const CATEGORY_GROUPS = [
   {
     group: 'Cars & Vehicles',
     key: 'group.vehicles',
     categories: [
-      { id: 'cars',        icon: '🚗', key: 'cat.cars' },
-      { id: 'motorcycles', icon: '🏍️', key: 'cat.motorcycles' },
-      { id: 'commercial',  icon: '🚚', key: 'cat.commercial' },
-      { id: 'auto_parts',  icon: '⚙️', key: 'cat.auto_parts' },
-      { id: 'bicycles',    icon: '🚲', key: 'cat.bicycles' }
-    ]
-  },
-  {
-    group: 'Property',
-    key: 'group.property',
-    categories: [
-      { id: 'property_sale',   icon: '🏠', key: 'cat.property_sale' },
-      { id: 'property_rent',   icon: '🏘️', key: 'cat.property_rent' },
-      { id: 'commercial_rent', icon: '🏢', key: 'cat.commercial_rent' },
-      { id: 'flatmates',       icon: '👥', key: 'cat.flatmates' }
+      { id: 'cars',              icon: '🚗', key: 'cat.cars' },
+      { id: 'motorbikes',        icon: '🏍️', key: 'cat.motorbikes' },
+      { id: 'vans',              icon: '🚐', key: 'cat.vans' },
+      { id: 'buses',             icon: '🚌', key: 'cat.buses' },
+      { id: 'trucks',            icon: '🚚', key: 'cat.trucks' },
+      { id: 'tractors',          icon: '🚜', key: 'cat.tractors' },
+      { id: 'auto_accessories',  icon: '⚙️', key: 'cat.auto_accessories' },
+      { id: 'auto_parts',        icon: '🔧', key: 'cat.auto_parts' },
+      { id: 'bicycles',          icon: '🚲', key: 'cat.bicycles' },
+      { id: 'vehicle_wanted',    icon: '🔎', key: 'cat.vehicle_wanted' }
     ]
   },
   {
     group: 'For Sale',
     key: 'group.forsale',
     categories: [
-      { id: 'electronics',  icon: '🔌', key: 'cat.electronics' },
-      { id: 'mobiles',      icon: '📱', key: 'cat.mobiles' },
-      { id: 'computers',    icon: '💻', key: 'cat.computers' },
-      { id: 'tablets',      icon: '📱', key: 'cat.tablets' },
-      { id: 'cameras',      icon: '📷', key: 'cat.cameras' },
-      { id: 'tv_audio',     icon: '📺', key: 'cat.tv_audio' },
-      { id: 'gaming',       icon: '🎮', key: 'cat.gaming' },
-      { id: 'furniture',    icon: '🪑', key: 'cat.furniture' },
-      { id: 'appliances',   icon: '❄️', key: 'cat.appliances' },
-      { id: 'kitchenware',  icon: '🍳', key: 'cat.kitchenware' },
-      { id: 'home_decor',   icon: '🖼️', key: 'cat.home_decor' },
-      { id: 'bedding',      icon: '🛏️', key: 'cat.bedding' },
-      { id: 'fashion',      icon: '👗', key: 'cat.fashion' },
-      { id: 'footwear',     icon: '👞', key: 'cat.footwear' },
-      { id: 'jewelry',      icon: '💍', key: 'cat.jewelry' },
-      { id: 'watches',      icon: '⌚', key: 'cat.watches' },
-      { id: 'bags',         icon: '👜', key: 'cat.bags' }
-    ]
-  },
-  {
-    group: 'Home & Garden',
-    key: 'group.home_garden',
-    categories: [
-      { id: 'furniture',   icon: '🪑', key: 'cat.furniture' },
-      { id: 'appliances',  icon: '❄️', key: 'cat.appliances' },
-      { id: 'kitchenware', icon: '🍳', key: 'cat.kitchenware' },
-      { id: 'home_decor',  icon: '🖼️', key: 'cat.home_decor' },
-      { id: 'bedding',     icon: '🛏️', key: 'cat.bedding' }
-    ]
-  },
-  {
-    group: 'Fashion & Accessories',
-    key: 'group.fashion',
-    categories: [
-      { id: 'fashion',  icon: '👗', key: 'cat.fashion' },
-      { id: 'footwear', icon: '👞', key: 'cat.footwear' },
-      { id: 'jewelry',  icon: '💍', key: 'cat.jewelry' },
-      { id: 'watches',  icon: '⌚', key: 'cat.watches' },
-      { id: 'bags',     icon: '👜', key: 'cat.bags' }
-    ]
-  },
-  {
-    group: 'Sports & Hobbies',
-    key: 'group.sports',
-    categories: [
-      { id: 'sports',     icon: '⚽', key: 'cat.sports' },
-      { id: 'outdoor',    icon: '⛺', key: 'cat.outdoor' },
-      { id: 'fitness',    icon: '💪', key: 'cat.fitness' },
-      { id: 'musical',    icon: '🎸', key: 'cat.musical' },
-      { id: 'books',      icon: '📚', key: 'cat.books' },
-      { id: 'toys',       icon: '🧸', key: 'cat.toys' },
-      { id: 'collectibles', icon: '🎨', key: 'cat.collectibles' }
+      { id: 'mobiles',           icon: '📱', key: 'cat.mobiles' },
+      { id: 'computers',         icon: '💻', key: 'cat.computers' },
+      { id: 'tablets',           icon: '📱', key: 'cat.tablets' },
+      { id: 'cameras',           icon: '📷', key: 'cat.cameras' },
+      { id: 'tv_audio',          icon: '📺', key: 'cat.tv_audio' },
+      { id: 'gaming',            icon: '🎮', key: 'cat.gaming' },
+      { id: 'appliances',        icon: '❄️', key: 'cat.appliances' },
+      { id: 'furniture',         icon: '🪑', key: 'cat.furniture' },
+      { id: 'home_decor',        icon: '🖼️', key: 'cat.home_decor' },
+      { id: 'kitchenware',       icon: '🍳', key: 'cat.kitchenware' },
+      { id: 'bedding',           icon: '🛏️', key: 'cat.bedding' },
+      { id: 'fashion',           icon: '👗', key: 'cat.fashion' },
+      { id: 'footwear',          icon: '👞', key: 'cat.footwear' },
+      { id: 'jewelry',           icon: '💍', key: 'cat.jewelry' },
+      { id: 'watches',           icon: '⌚', key: 'cat.watches' },
+      { id: 'bags',              icon: '👜', key: 'cat.bags' },
+      { id: 'baby_kids',         icon: '👶', key: 'cat.baby_kids' },
+      { id: 'books_media',       icon: '📚', key: 'cat.books_media' },
+      { id: 'sports_leisure',    icon: '⚽', key: 'cat.sports_leisure' },
+      { id: 'toys',              icon: '🧸', key: 'cat.toys' },
+      { id: 'art_collectibles',  icon: '🎨', key: 'cat.art_collectibles' },
+      { id: 'diy_tools',         icon: '🔨', key: 'cat.diy_tools' },
+      { id: 'office_furniture',  icon: '🪑', key: 'cat.office_furniture' },
+      { id: 'stuff_wanted',      icon: '🔎', key: 'cat.stuff_wanted' },
+      { id: 'swap_shop',         icon: '🔄', key: 'cat.swap_shop' }
     ]
   },
   {
     group: 'Services',
     key: 'group.services',
     categories: [
-      { id: 'services', icon: '🛠️', key: 'cat.services' },
-      { id: 'lessons',  icon: '🎓', key: 'cat.lessons' },
-      { id: 'tutoring', icon: '📖', key: 'cat.tutoring' },
-      { id: 'repair',   icon: '🔧', key: 'cat.repair' },
-      { id: 'moving',   icon: '📦', key: 'cat.moving' }
+      { id: 'healthcare',        icon: '🏥', key: 'cat.healthcare' },
+      { id: 'it_services',       icon: '💻', key: 'cat.it_services' },
+      { id: 'construction',      icon: '🏗️', key: 'cat.construction' },
+      { id: 'plumbing',          icon: '🔧', key: 'cat.plumbing' },
+      { id: 'electrical',        icon: '⚡', key: 'cat.electrical' },
+      { id: 'cleaning',          icon: '🧹', key: 'cat.cleaning' },
+      { id: 'gardening',         icon: '🌿', key: 'cat.gardening' },
+      { id: 'moving_storage',    icon: '📦', key: 'cat.moving_storage' },
+      { id: 'beauty_salon',      icon: '💇', key: 'cat.beauty_salon' },
+      { id: 'tuition_classes',   icon: '📚', key: 'cat.tuition_classes' },
+      { id: 'entertainment',     icon: '🎬', key: 'cat.entertainment' },
+      { id: 'events_catering',   icon: '🎉', key: 'cat.events_catering' },
+      { id: 'travel_tourism',    icon: '✈️', key: 'cat.travel_tourism' },
+      { id: 'legal_consulting',  icon: '⚖️', key: 'cat.legal_consulting' },
+      { id: 'financial_services', icon: '💰', key: 'cat.financial_services' }
     ]
   },
   {
-    group: 'Jobs',
-    key: 'group.jobs',
+    group: 'Property',
+    key: 'group.property',
     categories: [
-      { id: 'jobs',           icon: '💼', key: 'cat.jobs' },
-      { id: 'jobs_fulltime',  icon: '💻', key: 'cat.jobs_fulltime' },
-      { id: 'jobs_parttime',  icon: '⏰', key: 'cat.jobs_parttime' },
-      { id: 'freelance',      icon: '🎯', key: 'cat.freelance' }
-    ]
-  },
-  {
-    group: 'Education',
-    key: 'group.education',
-    categories: [
-      { id: 'education', icon: '🎓', key: 'cat.education' },
-      { id: 'courses',   icon: '📚', key: 'cat.courses' },
-      { id: 'skills',    icon: '🎯', key: 'cat.skills' }
+      { id: 'property_sale',     icon: '🏠', key: 'cat.property_sale' },
+      { id: 'property_rent',     icon: '🏘️', key: 'cat.property_rent' },
+      { id: 'flatmates',         icon: '👥', key: 'cat.flatmates' },
+      { id: 'commercial_space',  icon: '🏢', key: 'cat.commercial_space' },
+      { id: 'office_rent',       icon: '🏢', key: 'cat.office_rent' },
+      { id: 'garage_parking',    icon: '🅿️', key: 'cat.garage_parking' },
+      { id: 'holiday_rentals',   icon: '🏖️', key: 'cat.holiday_rentals' },
+      { id: 'property_wanted',   icon: '🔎', key: 'cat.property_wanted' }
     ]
   },
   {
     group: 'Pets',
     key: 'group.pets',
     categories: [
-      { id: 'pets',         icon: '🐾', key: 'cat.pets' },
-      { id: 'pet_supplies', icon: '🦴', key: 'cat.pet_supplies' }
+      { id: 'dogs',              icon: '🐕', key: 'cat.dogs' },
+      { id: 'cats',              icon: '🐱', key: 'cat.cats' },
+      { id: 'birds',             icon: '🐦', key: 'cat.birds' },
+      { id: 'fish',              icon: '🐠', key: 'cat.fish' },
+      { id: 'reptiles',          icon: '🐍', key: 'cat.reptiles' },
+      { id: 'small_animals',     icon: '🐹', key: 'cat.small_animals' },
+      { id: 'horses',            icon: '🐴', key: 'cat.horses' },
+      { id: 'livestock',         icon: '🐄', key: 'cat.livestock' },
+      { id: 'pet_supplies',      icon: '🦴', key: 'cat.pet_supplies' },
+      { id: 'lost_found_pets',   icon: '🔍', key: 'cat.lost_found_pets' }
     ]
   },
   {
-    group: 'Agriculture & Livestock',
-    key: 'group.agriculture',
+    group: 'Jobs',
+    key: 'group.jobs',
     categories: [
-      { id: 'livestock',      icon: '🐄', key: 'cat.livestock' },
-      { id: 'agriculture',    icon: '🌾', key: 'cat.agriculture' },
-      { id: 'farming_tools',  icon: '🚜', key: 'cat.farming_tools' },
-      { id: 'aquaculture',    icon: '🐟', key: 'cat.aquaculture' }
+      { id: 'accounting',        icon: '💼', key: 'cat.accounting' },
+      { id: 'admin',             icon: '📋', key: 'cat.admin' },
+      { id: 'agriculture_jobs',  icon: '🌾', key: 'cat.agriculture_jobs' },
+      { id: 'it_jobs',           icon: '💻', key: 'cat.it_jobs' },
+      { id: 'engineering',       icon: '⚙️', key: 'cat.engineering' },
+      { id: 'healthcare_jobs',   icon: '🏥', key: 'cat.healthcare_jobs' },
+      { id: 'hospitality',       icon: '🏨', key: 'cat.hospitality' },
+      { id: 'sales_marketing',   icon: '📢', key: 'cat.sales_marketing' },
+      { id: 'construction_jobs', icon: '🏗️', key: 'cat.construction_jobs' },
+      { id: 'driving_logistics', icon: '🚚', key: 'cat.driving_logistics' },
+      { id: 'education_jobs',    icon: '📚', key: 'cat.education_jobs' },
+      { id: 'finance_jobs',      icon: '💰', key: 'cat.finance_jobs' },
+      { id: 'legal_jobs',        icon: '⚖️', key: 'cat.legal_jobs' },
+      { id: 'manufacturing',     icon: '🏭', key: 'cat.manufacturing' },
+      { id: 'freelance',         icon: '🎯', key: 'cat.freelance' }
     ]
   },
   {
     group: 'Community',
     key: 'group.community',
     categories: [
-      { id: 'events',    icon: '🎉', key: 'cat.events' },
-      { id: 'groups',    icon: '👥', key: 'cat.groups' },
-      { id: 'lost_found', icon: '🔍', key: 'cat.lost_found' },
-      { id: 'community', icon: '🤝', key: 'cat.community' }
-    ]
-  },
-  {
-    group: 'Miscellaneous',
-    key: 'group.misc',
-    categories: [
-      { id: 'wanted',   icon: '🔎', key: 'cat.wanted' },
-      { id: 'exchange', icon: '🔄', key: 'cat.exchange' },
-      { id: 'other',    icon: '📦', key: 'cat.other' }
+      { id: 'events',            icon: '🎉', key: 'cat.events' },
+      { id: 'groups',            icon: '👥', key: 'cat.groups' },
+      { id: 'discussions',       icon: '💬', key: 'cat.discussions' },
+      { id: 'lost_found',        icon: '🔍', key: 'cat.lost_found' },
+      { id: 'giveaways',         icon: '🎁', key: 'cat.giveaways' }
     ]
   }
 ];

@@ -11,6 +11,28 @@
       btn.addEventListener('click', () => I18nStore.toggle()));
   }
 
+  /* ---- populate category dropdowns ---- */
+  function populateCategorySelects(){
+    const selects = ['#fCat', '#postCat'];
+    selects.forEach(selector => {
+      const select = $(selector);
+      if(!select) return;
+      select.innerHTML = `<option value="" data-i18n="browse.all">${I18nStore.get('browse.all')}</option>`;
+      CATEGORY_GROUPS.forEach(group => {
+        const optgroup = document.createElement('optgroup');
+        optgroup.label = I18nStore.get(group.key);
+        group.categories.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = I18nStore.get(cat.key);
+          option.setAttribute('data-i18n', cat.key);
+          optgroup.appendChild(option);
+        });
+        select.appendChild(optgroup);
+      });
+    });
+  }
+
   /* ---- sticky nav + mobile menu + scroll progress ---- */
   function initNav(){
     const nav = $('.nav');
@@ -314,7 +336,7 @@
 
   /* ---- boot ---- */
   document.addEventListener('DOMContentLoaded', () => {
-    initLang(); initNav(); renderCategories(); renderFeatured();
+    initLang(); populateCategorySelects(); initNav(); renderCategories(); renderFeatured();
     initReveal(); initCounters(); initSearch();
     initBrowse(); initPost(); initPaymentModal();
     // re-apply translations to freshly rendered nodes
