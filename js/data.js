@@ -1,13 +1,22 @@
-// AmaarBazar — sample listings. Bilingual title/location, BDT prices.
+// AmaarBazaar — sample listings. Bilingual title/location, BDT prices.
 const CATEGORIES = [
-  { id: 'vehicles',    icon: '🏍️', key: 'cat.vehicles' },
-  { id: 'property',    icon: '🏠', key: 'cat.property' },
-  { id: 'forsale',     icon: '🛍️', key: 'cat.forsale' },
-  { id: 'jobs',        icon: '💼', key: 'cat.jobs' },
-  { id: 'services',    icon: '🛠️', key: 'cat.services' },
-  { id: 'electronics', icon: '📱', key: 'cat.electronics' },
-  { id: 'pets',        icon: '🐾', key: 'cat.pets' },
-  { id: 'community',   icon: '🤝', key: 'cat.community' }
+  { id: 'vehicles',       icon: '🏍️', key: 'cat.vehicles' },
+  { id: 'property_rent',  icon: '🏘️', key: 'cat.property_rent' },
+  { id: 'property_sale',  icon: '🏠', key: 'cat.property_sale' },
+  { id: 'livestock',      icon: '🐄', key: 'cat.livestock' },
+  { id: 'agriculture',    icon: '🌾', key: 'cat.agriculture' },
+  { id: 'electronics',    icon: '📱', key: 'cat.electronics' },
+  { id: 'furniture',      icon: '🪑', key: 'cat.furniture' },
+  { id: 'fashion',        icon: '👗', key: 'cat.fashion' },
+  { id: 'mobiles',        icon: '📲', key: 'cat.mobiles' },
+  { id: 'appliances',     icon: '❄️', key: 'cat.appliances' },
+  { id: 'books',          icon: '📚', key: 'cat.books' },
+  { id: 'sports',         icon: '⚽', key: 'cat.sports' },
+  { id: 'education',      icon: '🎓', key: 'cat.education' },
+  { id: 'jobs',           icon: '💼', key: 'cat.jobs' },
+  { id: 'services',       icon: '🛠️', key: 'cat.services' },
+  { id: 'pets',           icon: '🐾', key: 'cat.pets' },
+  { id: 'community',      icon: '🤝', key: 'cat.community' }
 ];
 
 const LISTINGS = [

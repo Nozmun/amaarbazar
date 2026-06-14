@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /js/admin.js
+Disallow: /css/admin.css
+
+# Allow crawling of public pages
+Allow: /
+Allow: /*.html
+Allow: /js/
+Allow: /css/
+
+# Sitemap (add when deployed)
+# Sitemap: https://amaarbazaar.com/sitemap.xml

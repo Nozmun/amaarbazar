@@ -1,0 +1,212 @@
+/* AmaarBazaar Admin CSS */
+:root {
+  --primary: #0e8e8a;
+  --primary-d: #0a6b68;
+  --accent: #e8568a;
+  --gold: #f5a623;
+  --ink: #0e2522;
+  --error: #dc2626;
+  --bg: #f4faf9;
+  --white: #ffffff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Login Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 37, 34, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.modal-overlay.active { opacity: 1; }
+.modal-overlay:not(.active) { display: none; }
+
+.modal-panel {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 2.4rem;
+  width: min(400px, 90vw);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+.modal-panel h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.modal-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  padding: 0.8rem 1rem;
+  border: 1px solid #e6ece9;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(14, 142, 138, 0.1);
+}
+
+.btn {
+  padding: 0.8rem 1.6rem;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+.btn:hover { background: var(--primary-d); transform: translateY(-2px); }
+
+.error { color: var(--error); font-size: 0.9rem; }
+
+/* Dashboard */
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+}
+.dashboard.hidden { display: none; }
+
+/* Admin Nav */
+.admin-nav {
+  width: 260px;
+  background: var(--primary-d);
+  color: var(--white);
+  padding: 2rem 1rem;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.admin-nav__brand h3 {
+  font-size: 1.4rem;
+  margin-bottom: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.admin-nav__menu {
+  list-style: none;
+}
+.admin-nav__menu li { margin-bottom: 0.5rem; }
+
+.nav-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  transition: all 0.3s;
+  color: rgba(255, 255, 255, 0.8);
+}
+.nav-link:hover, .nav-link.active {
+  background: var(--primary);
+  color: var(--white);
+}
+.nav-link.logout { margin-top: 2rem; color: #ffb3b3; }
+
+/* Admin Content */
+.admin-content {
+  margin-left: 260px;
+  flex: 1;
+  padding: 2rem;
+}
+
+.admin-content h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section { display: none; }
+.section:first-of-type { display: block; }
+.section.active { display: block; }
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 1.6rem;
+  border: 1px solid #dfeeec;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.stat-card h3 { font-size: 0.95rem; color: var(--grey-2); margin-bottom: 0.8rem; }
+.stat-value { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.table th {
+  background: #f0f5f4;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 1px solid #dfeeec;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dfeeec;
+}
+
+.table tr:last-child td { border-bottom: none; }
+
+.settings-panel {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+}
+
+.settings-panel label {
+  display: block;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem;
+}
+
+.settings-panel input {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 860px) {
+  .admin-nav { width: 100%; height: auto; position: relative; padding: 1rem; }
+  .admin-nav__menu { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .admin-content { margin-left: 0; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}

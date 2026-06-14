@@ -1,4 +1,4 @@
-// AmaarBazar — interactions, rendering, animations, payment flow
+// AmaarBazaar — interactions, rendering, animations, payment flow
 (function(){
   'use strict';
   const $ = (s, r=document) => r.querySelector(s);
@@ -291,6 +291,12 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
   }
 
+  /* ---- splash screen ---- */
+  function hideSplash(){
+    const splash = $('#splash');
+    if(splash) setTimeout(() => splash.classList.add('hide'), 400);
+  }
+
   /* ---- re-render dynamic content on language change ---- */
   document.addEventListener('langchange', () => {
     renderCategories(); renderFeatured();
@@ -303,5 +309,6 @@
     initBrowse(); initPost(); initPaymentModal();
     // re-apply translations to freshly rendered nodes
     I18nStore.apply();
+    hideSplash();
   });
 })();

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Admin Dashboard — AmaarBazaar</title>
+<meta name="description" content="AmaarBazaar Administrator Dashboard">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:;">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal-overlay active">
+  <div class="modal-panel">
+    <h2>Admin Login</h2>
+    <form id="loginForm" onsubmit="adminLogin(event)">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit" class="btn">Sign In</button>
+      <p id="loginError" class="error"></p>
+    </form>
+  </div>
+</div>
+
+<!-- Dashboard (hidden until login) -->
+<div id="dashboard" class="dashboard hidden">
+  <nav class="admin-nav">
+    <div class="admin-nav__brand">
+      <h3>AmaarBazaar Admin</h3>
+    </div>
+    <ul class="admin-nav__menu">
+      <li><a href="#" onclick="showSection('stats')" class="nav-link active">Dashboard</a></li>
+      <li><a href="#" onclick="showSection('listings')" class="nav-link">Manage Listings</a></li>
+      <li><a href="#" onclick="showSection('categories')" class="nav-link">Categories</a></li>
+      <li><a href="#" onclick="showSection('users')" class="nav-link">Users</a></li>
+      <li><a href="#" onclick="showSection('settings')" class="nav-link">Settings</a></li>
+      <li><a href="#" onclick="adminLogout()" class="nav-link logout">Logout</a></li>
+    </ul>
+  </nav>
+
+  <main class="admin-content">
+    <!-- Stats Section -->
+    <section id="stats" class="section">
+      <h2>Dashboard Overview</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Listings</h3>
+          <p class="stat-value" id="statListings">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Active Users</h3>
+          <p class="stat-value" id="statUsers">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Revenue</h3>
+          <p class="stat-value" id="statRevenue">৳0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Categories</h3>
+          <p class="stat-value" id="statCategories">0</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section id="listings" class="section hidden">
+      <h2>Manage Listings</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="listingsTable">
+          <tr><td colspan="6">No listings to display</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="section hidden">
+      <h2>Manage Categories</h2>
+      <button class="btn" onclick="addCategory()">+ Add Category</button>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Icon</th>
+            <th>Listings</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="categoriesTable">
+          <tr><td colspan="4">No categories to display</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Users Section -->
+    <section id="users" class="section hidden">
+      <h2>User Management</h2>
+      <p>User management interface coming soon.</p>
+    </section>
+
+    <!-- Settings Section -->
+    <section id="settings" class="section hidden">
+      <h2>Settings</h2>
+      <div class="settings-panel">
+        <label>Site Title</label>
+        <input type="text" id="siteTitle" placeholder="AmaarBazaar" value="AmaarBazaar">
+        <label>Commission Rate (%)</label>
+        <input type="number" id="commissionRate" min="0" max="100" value="5">
+        <button class="btn" onclick="saveSettings()">Save Settings</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
