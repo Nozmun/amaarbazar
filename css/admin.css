@@ -240,8 +240,11 @@ textarea:focus {
 }
 .btn-danger:hover { background: #b91c1c; }
 
-/* User Modal */
-#userModal {
+/* Editor modals (user / listing / category) — id selectors win over the
+   generic `.modal-overlay:not(.active){display:none}` rule. */
+#userModal,
+#listingModal,
+#catModal {
   position: fixed;
   inset: 0;
   background: rgba(14, 37, 34, 0.8);
@@ -250,10 +253,16 @@ textarea:focus {
   justify-content: center;
   z-index: 1001;
 }
-#userModal.hidden { display: none; }
+#userModal.hidden,
+#listingModal.hidden,
+#catModal.hidden { display: none; }
 
-#userModal .modal-panel {
-  width: min(450px, 90vw);
+#userModal .modal-panel,
+#listingModal .modal-panel,
+#catModal .modal-panel {
+  width: min(460px, 90vw);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 #userModal .modal-panel h3 {

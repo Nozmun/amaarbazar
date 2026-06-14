@@ -7,6 +7,7 @@ const Store = (function () {
   const LK = 'amaarbazar_listings';
   const CK = 'amaarbazar_categories';
   const OK = 'amaarbazar_outbox';
+  const FK = 'amaarbazar_favorites';
   const bus = document.createElement('div');
 
   function read(k, def) {
@@ -31,7 +32,14 @@ const Store = (function () {
     const id = arr.reduce((m, l) => Math.max(m, +l.id || 0), 0) + 1;
     const listing = Object.assign({ id, days: 0, featured: false }, data);
     arr.unshift(listing);
-    saveListings(arr);
+    try {
+      saveListings(arr);
+    } catch (e) {
+      // localStorage quota — shed image data and keep the listing
+      if (Array.isArray(listing.imgs) && listing.imgs.length > 1) { listing.imgs = [listing.imgs[0]]; }
+      try { saveListings(arr); }
+      catch (e2) { listing.imgs = listing.img ? [listing.img] : []; saveListings(arr); }
+    }
     return listing;
   }
   function updateListing(id, patch) {
@@ -105,6 +113,60 @@ const Store = (function () {
     return mail;
   }
 
+  /* ---------------- favorites (per user) ---------------- */
+  function favKey(user) { return user || '_guest'; }
+  function getFavMap() { return read(FK, {}); }
+  function getFavorites(user) { return (getFavMap()[favKey(user)] || []).map(String); }
+  function isFavorite(user, id) { return getFavorites(user).indexOf(String(id)) !== -1; }
+  function toggleFavorite(user, id) {
+    const map = getFavMap();
+    const k = favKey(user);
+    const list = (map[k] || []).map(String);
+    const i = list.indexOf(String(id));
+    if (i === -1) list.push(String(id)); else list.splice(i, 1);
+    map[k] = list;
+    write(FK, map);
+    emit('favorites');
+    return i === -1; // true if now favorited
+  }
+
+  /* ---------------- video media (IndexedDB — too big for localStorage) ---------------- */
+  let _dbp = null;
+  function openDB() {
+    if (_dbp) return _dbp;
+    _dbp = new Promise((res, rej) => {
+      const r = indexedDB.open('amaarbazar_media', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('media');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    return _dbp;
+  }
+  async function putVideo(id, blob) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('media', 'readwrite');
+      tx.objectStore('media').put(blob, 'video_' + id);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    });
+  }
+  async function getVideo(id) {
+    const db = await openDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction('media', 'readonly');
+      const rq = tx.objectStore('media').get('video_' + id);
+      rq.onsuccess = () => res(rq.result || null); rq.onerror = () => rej(rq.error);
+    });
+  }
+  async function delVideo(id) {
+    const db = await openDB();
+    return new Promise((res) => {
+      const tx = db.transaction('media', 'readwrite');
+      tx.objectStore('media').delete('video_' + id);
+      tx.oncomplete = res; tx.onerror = res;
+    });
+  }
+
   /* ---------------- misc ---------------- */
   function on(cb) { bus.addEventListener('change', cb); }
   function reset() {
@@ -117,7 +179,8 @@ const Store = (function () {
     getListings, getListing, addListing, updateListing, deleteListing,
     getGroups, saveGroups, getFlatCategories, findGroupOfCat, groupSlug,
     addCategory, updateCategory, deleteCategory, catName, catNameById,
-    getOutbox, sendEmail, on, reset
+    getOutbox, sendEmail, getFavorites, isFavorite, toggleFavorite,
+    putVideo, getVideo, delVideo, on, reset
   };
 })();
 window.Store = Store;

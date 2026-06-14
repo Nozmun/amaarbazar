@@ -178,9 +178,10 @@
     return `
       <article class="card" data-id="${l.id}" style="--i:${i % 8}" tabindex="0">
         <div class="card__media">
-          <img src="${l.img}" alt="${t}" loading="lazy">
+          <img src="${(l.imgs && l.imgs[0]) || l.img}" alt="${t}" loading="lazy">
           <div class="card__shine"></div>
           ${l.featured ? `<span class="card__badge" data-i18n="feat.featured">${I18nStore.get('feat.featured')}</span>`:''}
+          ${l.video ? `<span class="card__videoflag">▶</span>`:''}
           <button class="card__fav" aria-label="Save">♡</button>
           <span class="card__view"><span data-i18n="feat.view">View details</span> →</span>
         </div>
@@ -194,20 +195,32 @@
         </div>
       </article>`;
   }
+  function currentUserName(){
+    try { return (window.AmaarAuth && AmaarAuth.currentUser() && AmaarAuth.currentUser().username) || '_guest'; }
+    catch(e){ return '_guest'; }
+  }
+  function setFavBtn(btn, on){ btn.classList.toggle('on', on); btn.textContent = on ? '♥' : '♡'; }
   function wireCards(scope){
-    $$('.card__fav', scope).forEach(b => b.addEventListener('click', (e) => {
-      e.stopPropagation(); b.classList.toggle('on');
-      b.textContent = b.classList.contains('on') ? '♥' : '♡';
-    }));
     $$('.card', scope).forEach(c => {
       reveal(c);
-      const open = () => openListing(c.dataset.id);
+      const id = c.dataset.id;
+      const fav = c.querySelector('.card__fav');
+      if(fav && window.Store){
+        setFavBtn(fav, Store.isFavorite(currentUserName(), id));
+        fav.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const now = Store.toggleFavorite(currentUserName(), id);
+          setFavBtn(fav, now);
+        });
+      }
+      const open = () => openListing(id);
       c.addEventListener('click', open);
       c.addEventListener('keydown', (e) => { if(e.key==='Enter'){ e.preventDefault(); open(); }});
     });
   }
 
   /* ---- listing detail modal (injected once, reused on every page) ---- */
+  let ldVideoURL = null;
   function ensureListingModal(){
     if($('#listingDetail')) return;
     const wrap = document.createElement('div');
@@ -216,24 +229,34 @@
   <div class="modal__overlay" data-ld-close></div>
   <div class="modal__panel modal__panel--listing">
     <button class="modal__close" data-ld-close aria-label="Close">✕</button>
-    <div class="ld__media"><img id="ldImg" alt=""><span id="ldBadge" class="card__badge" style="display:none" data-i18n="feat.featured">Featured</span></div>
-    <div class="ld__body">
-      <div class="ld__price" id="ldPrice"></div>
-      <h3 class="ld__title" id="ldTitle"></h3>
-      <div class="ld__meta">
-        <span id="ldLoc"></span>
-        <span id="ldCat" class="ld__chip"></span>
-        <span id="ldDays" class="ld__days"></span>
+    <div class="ld__grid">
+      <div class="ld__gallery">
+        <div class="ld__main" id="ldMain"></div>
+        <div class="ld__thumbs" id="ldThumbs"></div>
+        <span id="ldBadge" class="card__badge" style="display:none" data-i18n="feat.featured">Featured</span>
       </div>
-      <p class="ld__desc" id="ldDesc"></p>
-      <div class="ld__contact">
-        <h4 data-i18n="ld.contact">Contact seller</h4>
-        <div class="ld__actions">
-          <button id="ldPhoneBtn" class="btn btn--primary" type="button"><span data-i18n="ld.show_phone">📞 Show phone number</span></button>
-          <a id="ldPhoneLink" class="btn btn--primary" style="display:none"></a>
-          <a id="ldEmail" class="btn btn--outline" data-i18n="ld.email_seller">✉️ Email seller</a>
+      <div class="ld__body">
+        <div class="ld__top">
+          <div class="ld__price" id="ldPrice"></div>
+          <button class="ld__fav" id="ldFav" type="button" aria-label="Save to favourites">♡</button>
         </div>
-        <div class="ld__safety">🛡️ <span data-i18n="ld.safety">Tip: meet in a public place and inspect items before paying.</span></div>
+        <h3 class="ld__title" id="ldTitle"></h3>
+        <div class="ld__meta">
+          <span id="ldLoc"></span>
+          <span id="ldCat" class="ld__chip"></span>
+          <span id="ldDays" class="ld__days"></span>
+        </div>
+        <h4 class="ld__dh" id="ldDescHead" style="display:none" data-i18n="ld.description">Description</h4>
+        <p class="ld__desc" id="ldDesc"></p>
+        <div class="ld__contact">
+          <h4 data-i18n="ld.contact">Contact seller</h4>
+          <div class="ld__actions">
+            <button id="ldPhoneBtn" class="btn btn--primary" type="button"><span data-i18n="ld.show_phone">📞 Show phone number</span></button>
+            <a id="ldPhoneLink" class="btn btn--primary" style="display:none"></a>
+            <a id="ldEmail" class="btn btn--outline" data-i18n="ld.email_seller">✉️ Email seller</a>
+          </div>
+          <div class="ld__safety">🛡️ <span data-i18n="ld.safety">Tip: meet in a public place and inspect items before paying.</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -246,6 +269,36 @@
     const m = $('#listingDetail'); if(!m) return;
     m.classList.remove('open'); m.setAttribute('aria-hidden','true');
     document.body.style.overflow='';
+    if(ldVideoURL){ URL.revokeObjectURL(ldVideoURL); ldVideoURL = null; }
+    const main = $('#ldMain'); if(main) main.innerHTML='';
+  }
+  function buildGallery(l, title){
+    const main = $('#ldMain'), thumbs = $('#ldThumbs');
+    const imgs = (l.imgs && l.imgs.length) ? l.imgs : (l.img ? [l.img] : []);
+    thumbs.innerHTML = '';
+    const showImg = (src) => { main.innerHTML = `<img src="${src}" alt="${title}">`; };
+    const setActive = (btn) => $$('.ld__thumb', thumbs).forEach(b => b.classList.toggle('active', b===btn));
+    imgs.forEach((src, i) => {
+      const b = document.createElement('button');
+      b.type='button'; b.className = 'ld__thumb' + (i===0?' active':'');
+      b.innerHTML = `<img src="${src}" alt="">`;
+      b.addEventListener('click', () => { setActive(b); showImg(src); });
+      thumbs.appendChild(b);
+    });
+    if(imgs.length) showImg(imgs[0]); else main.innerHTML = '';
+    // video thumb (loaded async from IndexedDB)
+    if(l.video && window.Store){
+      Store.getVideo(l.id).then(blob => {
+        if(!blob) return;
+        if(ldVideoURL) URL.revokeObjectURL(ldVideoURL);
+        ldVideoURL = URL.createObjectURL(blob);
+        const b = document.createElement('button');
+        b.type='button'; b.className='ld__thumb ld__thumb--video'; b.innerHTML='▶';
+        b.addEventListener('click', () => { setActive(b); main.innerHTML = `<video src="${ldVideoURL}" controls autoplay playsinline></video>`; });
+        thumbs.appendChild(b);
+      }).catch(()=>{});
+    }
+    thumbs.style.display = (imgs.length > 1 || l.video) ? 'flex' : 'none';
   }
   function openListing(id){
     ensureListingModal();
@@ -255,7 +308,7 @@
     const title = (l.title && (l.title[lang]||l.title.en)) || 'Listing';
     const loc = (l.loc && (l.loc[lang]||l.loc.en)) || '';
     const days = lang==='bn' ? toBnNum(l.days||0) : (l.days||0);
-    $('#ldImg').src = l.img || ''; $('#ldImg').alt = title;
+    buildGallery(l, title);
     $('#ldBadge').style.display = l.featured ? '' : 'none';
     $('#ldPrice').textContent = I18nStore.fmtPrice(l.price||0);
     $('#ldTitle').textContent = title;
@@ -264,12 +317,16 @@
     $('#ldDays').textContent = (lang==='bn' ? `${days} দিন আগে` : `${days}d ago`);
     $('#ldDesc').textContent = l.desc || '';
     $('#ldDesc').style.display = l.desc ? '' : 'none';
+    $('#ldDescHead').style.display = l.desc ? '' : 'none';
+    // favourite
+    const favBtn = $('#ldFav');
+    setFavBtn(favBtn, window.Store ? Store.isFavorite(currentUserName(), l.id) : false);
+    favBtn.onclick = () => { const now = Store.toggleFavorite(currentUserName(), l.id); setFavBtn(favBtn, now); };
     // contact: phone hidden behind reveal button
     const phoneBtn = $('#ldPhoneBtn'), phoneLink = $('#ldPhoneLink');
     phoneLink.style.display = 'none';
     if(l.phone){
-      phoneBtn.style.display = '';
-      phoneBtn.disabled = false;
+      phoneBtn.style.display = ''; phoneBtn.disabled = false;
       phoneBtn.onclick = () => {
         phoneBtn.style.display = 'none';
         phoneLink.style.display = '';
@@ -310,15 +367,19 @@
       cat: params.get('cat') || '',
       group: params.get('group') || '',
       q: (params.get('q') || '').toLowerCase(),
+      fav: params.get('fav') === '1',
       min: 0, max: Infinity, loc: (params.get('loc') || '').toLowerCase(), sort: 'new'
     };
-    const catSel = $('#fCat'), minI = $('#fMin'), maxI = $('#fMax'), locI = $('#fLoc'), sortSel = $('#fSort');
+    const catSel = $('#fCat'), minI = $('#fMin'), maxI = $('#fMax'), locI = $('#fLoc'), sortSel = $('#fSort'), favChk = $('#fFav');
     if(catSel && f.cat) catSel.value = f.cat;
     if(locI && f.loc) locI.value = params.get('loc');
+    if(favChk) favChk.checked = f.fav;
 
     function render(){
       const data = window.Store ? Store.getListings() : (typeof LISTINGS!=='undefined'?LISTINGS:[]);
+      const favs = (f.fav && window.Store) ? Store.getFavorites(currentUserName()) : null;
       let items = data.filter(l => {
+        if(f.fav && favs && favs.indexOf(String(l.id)) === -1) return false;
         if(f.cat && l.cat !== f.cat) return false;
         if(f.group){ const g = l.group || (window.Store && Store.findGroupOfCat(l.cat)); if(g !== f.group) return false; }
         if(f.q){ const hay = (l.title.en+' '+l.title.bn+' '+l.loc.en+' '+l.loc.bn).toLowerCase(); if(!hay.includes(f.q)) return false; }
@@ -338,12 +399,14 @@
     }
     $('#applyFilters')?.addEventListener('click', () => {
       f.cat = catSel.value; f.group = ''; f.min = +minI.value||0; f.max = +maxI.value||Infinity;
-      f.loc = (locI.value||'').toLowerCase(); f.sort = sortSel.value; render();
+      f.loc = (locI.value||'').toLowerCase(); f.sort = sortSel.value; f.fav = !!(favChk && favChk.checked); render();
     });
     $('#resetFilters')?.addEventListener('click', () => {
       catSel.value=''; minI.value=''; maxI.value=''; locI.value=''; sortSel.value='new';
-      f.cat=f.loc=f.group=''; f.min=0; f.max=Infinity; f.sort='new'; render();
+      if(favChk) favChk.checked=false;
+      f.cat=f.loc=f.group=''; f.fav=false; f.min=0; f.max=Infinity; f.sort='new'; render();
     });
+    favChk?.addEventListener('change', () => { f.fav = favChk.checked; render(); });
     sortSel?.addEventListener('change', () => { f.sort = sortSel.value; render(); });
     document.addEventListener('langchange', render);
     if(window.Store) Store.on(render);
@@ -412,8 +475,30 @@
     community:'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80'
   };
   let currentTier = 'free';
-  let uploadedImg = null;
+  let uploadedImgs = [];
+  let uploadedVideoFile = null;
   let lastListing = null;
+
+  /* read + downscale an image file to a compact JPEG data URL */
+  function fileToScaledDataURL(file, maxW = 1100, quality = 0.72){
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxW / img.width);
+          const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+          const c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          try { resolve(c.toDataURL('image/jpeg', quality)); } catch(e){ resolve(r.result); }
+        };
+        img.onerror = () => resolve(r.result);
+        img.src = r.result;
+      };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
 
   function gatherPost(){
     const err = $('#postError');
@@ -432,13 +517,20 @@
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail(t('post.err_email','Enter a valid email for confirmation.'));
     if(!/^01\d{9}$/.test(phone)) return fail(t('post.err_phone','Enter a valid 11-digit mobile number (01XXXXXXXXX).'));
     const group = window.Store ? Store.findGroupOfCat(cat) : '';
-    const img = uploadedImg || GROUP_IMG[group] || GROUP_IMG.forsale;
-    return { title:{en:title,bn:title}, cat, group, price, desc, loc:{en:loc,bn:loc}, email, phone, img, days:0 };
+    const imgs = uploadedImgs.length ? uploadedImgs.slice() : [GROUP_IMG[group] || GROUP_IMG.forsale];
+    return { title:{en:title,bn:title}, cat, group, price, desc, loc:{en:loc,bn:loc}, email, phone,
+             imgs, img: imgs[0], video: !!uploadedVideoFile, days:0 };
   }
 
   function publishAd(data, tier){
     const listing = Store.addListing(Object.assign({}, data, { featured: tier!=='free', tier }));
     lastListing = listing;
+    // persist video (if any) to IndexedDB, keyed by the new listing id
+    if(uploadedVideoFile && window.Store){
+      Store.putVideo(listing.id, uploadedVideoFile)
+        .then(() => Store.updateListing(listing.id, { video: true }))
+        .catch(() => Store.updateListing(listing.id, { video: false }));
+    }
     const tierName = {free:'Basic (Free)',featured:'Featured',premium:'Premium'}[tier]||tier;
     const ref = 'AB-'+listing.id;
     const body =
@@ -459,13 +551,28 @@
     $('#psTitle').textContent = data.title.en;
     $('#psRef').textContent = 'AB-'+listing.id;
     $('#psEmail').textContent = data.email;
-    $('#psView').href = 'browse.html?cat='+encodeURIComponent(data.cat);
+    const view = $('#psView');
+    if(view){ view.href = '#'; view.onclick = (e) => { e.preventDefault(); closePostSuccess(); openListing(listing.id); }; }
     m.classList.add('open');
     document.body.style.overflow='hidden';
   }
   function closePostSuccess(){ const m=$('#postSuccess'); if(m){ m.classList.remove('open'); document.body.style.overflow=''; } }
 
-  function resetDropzone(dz){ if(dz){ const p=dz.querySelector('p'); if(p){ p.setAttribute('data-i18n','post.f_photo_hint'); I18nStore.apply(); } } }
+  function renderPostPreview(){
+    const wrap = $('#postPreview'); if(!wrap) return;
+    let html = uploadedImgs.map((src,i) => `<div class="pp-thumb"><img src="${src}" alt="photo ${i+1}"></div>`).join('');
+    if(uploadedVideoFile) html += `<div class="pp-thumb pp-thumb--video">🎬<span>${escapeHtmlA(uploadedVideoFile.name)}</span></div>`;
+    wrap.innerHTML = html;
+    wrap.style.display = html ? 'flex' : 'none';
+  }
+  function escapeHtmlA(s){ const d=document.createElement('div'); d.textContent=s==null?'':s; return d.innerHTML; }
+  function resetDropzone(dz){
+    uploadedImgs = []; uploadedVideoFile = null;
+    const pv = $('#postPreview'); if(pv){ pv.innerHTML=''; pv.style.display='none'; }
+    const vz = $('#videozone'); if(vz){ const p=vz.querySelector('p'); if(p){ p.setAttribute('data-i18n','post.f_video_hint'); } }
+    if(dz){ const p=dz.querySelector('p'); if(p){ p.setAttribute('data-i18n','post.f_photo_hint'); } }
+    I18nStore.apply();
+  }
 
   function initPost(){
     const form = $('#postForm'); if(!form) return;
@@ -484,13 +591,27 @@
     $('#pPhone')?.addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g,'').slice(0,11); });
     const dz = $('#dropzone'), fileIn = $('#photoInput');
     dz?.addEventListener('click', () => fileIn.click());
-    fileIn?.addEventListener('change', () => {
-      if(fileIn.files.length){
-        dz.querySelector('p').textContent = `${fileIn.files.length} photo(s) added ✓`;
-        const r = new FileReader();
-        r.onload = (ev) => { uploadedImg = ev.target.result; };
-        r.readAsDataURL(fileIn.files[0]);
-      }
+    fileIn?.addEventListener('change', async () => {
+      const files = [...fileIn.files].slice(0, 8);
+      if(!files.length) return;
+      const p = dz.querySelector('p');
+      p.textContent = '⏳ ' + t('post.processing_imgs','Processing photos…');
+      uploadedImgs = [];
+      for(const f of files){ try{ uploadedImgs.push(await fileToScaledDataURL(f)); }catch(e){} }
+      renderPostPreview(dz);
+      p.textContent = `${uploadedImgs.length} ` + t('post.photos_added','photo(s) added ✓');
+    });
+    // video
+    const videoIn = $('#videoInput'), videoZone = $('#videozone');
+    videoZone?.addEventListener('click', () => videoIn.click());
+    videoIn?.addEventListener('change', () => {
+      const f = videoIn.files[0];
+      const note = videoZone?.querySelector('p');
+      if(!f){ uploadedVideoFile = null; return; }
+      if(f.size > 12 * 1024 * 1024){ toast(t('post.video_big','Video too large — max 12 MB.')); videoIn.value=''; uploadedVideoFile=null; return; }
+      uploadedVideoFile = f;
+      if(note) note.textContent = '🎬 ' + f.name;
+      renderPostPreview(dz);
     });
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -501,7 +622,7 @@
       } else {
         const listing = publishAd(data, 'free');
         showPostSuccess(listing, data);
-        form.reset(); uploadedImg = null; resetDropzone(dz);
+        form.reset(); resetDropzone(dz);
       }
     });
     $('#psClose')?.addEventListener('click', closePostSuccess);
@@ -585,10 +706,10 @@
     $('#paySuccessBtn')?.addEventListener('click', () => {
       closePayment();
       const form = $('#postForm');
-      if(form){ form.reset(); uploadedImg = null; resetDropzone($('#dropzone')); }
-      const dest = lastListing ? ('browse.html?cat='+encodeURIComponent(lastListing.cat)) : 'browse.html';
+      if(form){ form.reset(); resetDropzone($('#dropzone')); }
+      const id = lastListing && lastListing.id;
       pendingPost = null;
-      window.location.href = dest;
+      if(id) openListing(id); else window.location.href = 'browse.html';
     });
   }
 
