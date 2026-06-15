@@ -574,6 +574,20 @@ section{position:relative}
 .ad-slot--rose{border-color:var(--accent);background:linear-gradient(160deg,#fff,rgba(232,86,138,.07))}
 
 /* ====================================================================
+   GUMTREE-STYLE ILLUSTRATED CATEGORY TILES (homepage headline grid)
+   ==================================================================== */
+.cat-tiles{display:grid;grid-template-columns:repeat(7,1fr);gap:1rem;margin-bottom:2.6rem}
+.cat-tile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:.8rem;
+  padding:1.5rem .7rem 1.2rem;background:#fff;border:1px solid var(--line);border-radius:18px;text-align:center;
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease),border-color .35s var(--ease)}
+.cat-tile:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:transparent}
+.cat-tile__ic{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;color:var(--c);
+  background:var(--tint);transition:transform .35s var(--ease)}
+.cat-tile:hover .cat-tile__ic{transform:scale(1.08)}
+.cat-tile__ic svg{width:42px;height:42px;display:block}
+.cat-tile__label{font-weight:700;font-size:.88rem;color:var(--ink);line-height:1.25}
+
+/* ====================================================================
    AUTH MODAL (login / register)
    ==================================================================== */
 .modal__panel--auth{width:min(420px,94vw)}
@@ -608,6 +622,7 @@ section{position:relative}
 /* ---------- responsive ---------- */
 @media(max-width:1080px){
   .cat-grid{grid-template-columns:repeat(2,1fr)}
+  .cat-tiles{grid-template-columns:repeat(4,1fr)}
   .listing-grid{grid-template-columns:repeat(3,1fr)}
   .footer__top{grid-template-columns:1fr 1fr 1fr}
   .cat-browser{grid-template-columns:230px 1fr}
@@ -646,12 +661,50 @@ section{position:relative}
   .footer__top{grid-template-columns:1fr 1fr}
   .hero__stats{gap:1.6rem}
 }
-@media(max-width:520px){
+@media(max-width:600px){
+  /* declutter the top bar — Log in & Post an Ad live in the slide-out menu */
+  .nav__bar{gap:.6rem}
+  .nav__actions{gap:.4rem}
+  .nav__actions .nav__link,.nav__actions .btn{display:none}
+  .nav__tagline{display:none}
+  .logo__text{font-size:1.15rem}
+  .logo__mark{width:38px;height:38px}
+  /* tighter vertical rhythm on phones */
+  .section{padding:3.4rem 0}
+  .promo,.appcta{padding:3.4rem 0}
+  .page-top{padding:104px 0 2.2rem}
+  .section__head{margin-bottom:2rem}
+  .hero{min-height:auto;padding-top:104px;padding-bottom:3.4rem}
+  .hero__stats{gap:1.2rem 2rem;margin-top:2.2rem}
+  .hero__scroll{display:none}
+  /* illustrated category tiles: 3 across, lighter padding */
+  .cat-tiles{grid-template-columns:repeat(3,1fr);gap:.7rem}
+  .cat-tile{padding:1.1rem .4rem .9rem;gap:.6rem;border-radius:15px}
+  .cat-tile__ic{width:58px;height:58px}
+  .cat-tile__ic svg{width:32px;height:32px}
+  .cat-tile__label{font-size:.76rem}
+  /* keep two product cards side-by-side like Gumtree mobile */
+  .listing-grid{grid-template-columns:repeat(2,1fr);gap:.9rem}
+  .card__body{padding:.8rem .85rem 1rem}
+  .card__price{font-size:1.12rem}
+  .card__title{font-size:.9rem}
   .cat-grid{grid-template-columns:1fr}
-  .listing-grid{grid-template-columns:1fr}
-  .footer__top{grid-template-columns:1fr}
-  .cat-panel__grid{grid-template-columns:1fr}
+  .footer__top{grid-template-columns:1fr 1fr}
+  .cat-panel__grid{grid-template-columns:1fr 1fr}
   .ad-rail{flex-direction:column}
+  .promo__inner,.appcta__inner{padding:1.9rem 1.5rem;border-radius:24px}
+  .promo__visual{display:none}
+  .post-form{padding:1.4rem}
+  .field-row{grid-template-columns:1fr}
+  .pay-methods{grid-template-columns:repeat(2,1fr)}
+  /* comfortable tap targets */
+  .btn{padding:.9rem 1.4rem}
+  .lang-toggle{padding:.6rem 1rem}
+}
+@media(max-width:400px){
+  .cat-tiles{grid-template-columns:repeat(2,1fr)}
+  .footer__top{grid-template-columns:1fr}
+  .hero__title{font-size:2.3rem}
 }
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.001s!important}

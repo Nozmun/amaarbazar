@@ -94,6 +94,42 @@
   };
   const slug = (k) => k.split('.')[1];
 
+  /* ---- illustrated category icons (Gumtree-style tile art) ----
+     Original line illustrations drawn on-brand; colour comes from --c via currentColor. */
+  const SVG = {
+    vehicles:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 30l3-9a5 5 0 0 1 4.7-3.4h16.6A5 5 0 0 1 37 21l3 9"/><rect x="5" y="30" width="38" height="9" rx="3"/><circle cx="15" cy="39" r="3.2"/><circle cx="33" cy="39" r="3.2"/></svg>',
+    forsale:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24.5 7H37a4 4 0 0 1 4 4v12.5a4 4 0 0 1-1.2 2.8L25 41a3 3 0 0 1-4.2 0L7 27.2a3 3 0 0 1 0-4.2L21.7 8.2A4 4 0 0 1 24.5 7Z"/><circle cx="31.5" cy="16.5" r="2.6"/></svg>',
+    services:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M30 8a7 7 0 0 0-8.4 9.1L8 30.7V40h9.3l13.6-13.6A7 7 0 0 0 40 18.4l-5.6 5.6-4.4-1.2-1.2-4.4 5.6-5.6A7 7 0 0 0 30 8Z"/></svg>',
+    property:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 23 24 9l16 14"/><path d="M12 21v18h24V21"/><rect x="21" y="29" width="6" height="10"/></svg>',
+    pets:'<svg viewBox="0 0 48 48" fill="currentColor" stroke="none"><ellipse cx="17" cy="16" rx="3.4" ry="4.6"/><ellipse cx="31" cy="16" rx="3.4" ry="4.6"/><ellipse cx="9.5" cy="25" rx="3.2" ry="4.2"/><ellipse cx="38.5" cy="25" rx="3.2" ry="4.2"/><path d="M24 24c-5.2 0-9.2 4.1-9.2 8.6 0 3 2.3 4.6 5 4.6 1.9 0 2.9-1 4.2-1s2.3 1 4.2 1c2.7 0 5-1.6 5-4.6C33.2 28.1 29.2 24 24 24Z"/></svg>',
+    jobs:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="17" width="34" height="22" rx="3"/><path d="M18 17v-3.5A3.5 3.5 0 0 1 21.5 10h5A3.5 3.5 0 0 1 30 13.5V17"/><path d="M7 27h34"/></svg>',
+    community:'<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="5"/><circle cx="32" cy="19" r="4"/><path d="M9 38v-2a8 8 0 0 1 8-8h2a8 8 0 0 1 8 8v2"/><path d="M30 28.3A7 7 0 0 1 39 35v3"/></svg>'
+  };
+  /* per-group icon colour + soft tile tint (kept within the brand palette) */
+  const GROUP_META = {
+    'group.vehicles': { svg:'vehicles', c:'#0e8e8a', bg:'#e4f3f2' },
+    'group.forsale':  { svg:'forsale',  c:'#e8568a', bg:'#fde6f0' },
+    'group.services': { svg:'services', c:'#c98a12', bg:'#f8efd9' },
+    'group.property': { svg:'property', c:'#0a6b68', bg:'#e1efee' },
+    'group.pets':     { svg:'pets',     c:'#d63e75', bg:'#fce3ec' },
+    'group.jobs':     { svg:'jobs',     c:'#16847f', bg:'#e2f1f0' },
+    'group.community':{ svg:'community', c:'#b9791a', bg:'#f7edda' }
+  };
+
+  /* ---- Gumtree-style illustrated category tiles (homepage headline grid) ---- */
+  function renderCatTiles(){
+    const wrap = $('#catTiles'); if(!wrap) return;
+    wrap.innerHTML = GROUPS().map(g => {
+      const m = GROUP_META[g.key] || { svg:'forsale', c:'#0e8e8a', bg:'#e4f3f2' };
+      const label = I18nStore.get(g.key)!==g.key ? I18nStore.get(g.key) : g.group;
+      return `
+        <a class="cat-tile" href="browse.html?group=${slug(g.key)}" style="--c:${m.c};--tint:${m.bg}">
+          <span class="cat-tile__ic">${SVG[m.svg]||''}</span>
+          <span class="cat-tile__label">${label}</span>
+        </a>`;
+    }).join('');
+  }
+
   function GROUPS(){ return window.Store ? Store.getGroups() : (typeof CATEGORY_GROUPS!=='undefined'?CATEGORY_GROUPS:[]); }
   function catLabel(c){ return window.Store ? Store.catName(c) : (I18nStore.get(c.key)||c.id); }
 
@@ -167,7 +203,7 @@
   }
 
   /* ---- keep old name working for any callers ---- */
-  function renderCategories(){ renderCatBrowser(); renderMegaMenu(); }
+  function renderCategories(){ renderCatTiles(); renderCatBrowser(); renderMegaMenu(); }
 
   /* ---- card template ---- */
   function cardHTML(l, i = 0){
@@ -731,7 +767,7 @@
 
   /* ---- re-render dynamic content on language change ---- */
   document.addEventListener('langchange', () => {
-    renderCategories(); renderFeatured();
+    populateCategorySelects(); renderCategories(); renderFeatured();
   });
 
   /* ---- boot ---- */
