@@ -279,6 +279,81 @@
     el.innerHTML = parts.join('<span class="crumbs__sep">›</span>');
   }
 
+  /* ---- shared site footer (injected into every [data-full-footer]) ---- */
+  const LILY_SVG = '<svg class="lily" viewBox="0 0 48 48" aria-hidden="true"><g fill="#fff"><path d="M24 34C16 25 16 14 24 6 32 14 32 25 24 34Z" opacity=".5" transform="rotate(-70 24 34)"/><path d="M24 34C16 25 16 14 24 6 32 14 32 25 24 34Z" opacity=".5" transform="rotate(70 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(-46 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(-23 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(23 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(46 24 34)"/></g><circle cx="24" cy="31.5" r="3" fill="#f5a623"/></svg>';
+  function footerHTML(){
+    return `
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="logo"><span class="logo__mark">${LILY_SVG}</span><span class="logo__text">Amaar<b>Bazaar</b></span></a>
+          <p data-i18n="hero.sub">The free local marketplace built for Bangladesh.</p>
+          <div class="footer__socials">
+            <a href="https://www.facebook.com" target="_blank" rel="noopener" aria-label="Facebook">f</a>
+            <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="Instagram">◎</a>
+            <a href="https://www.youtube.com" target="_blank" rel="noopener" aria-label="YouTube">▶</a>
+            <a href="https://www.linkedin.com" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+          </div>
+        </div>
+        <div class="footer__col"><h5 data-i18n="foot.about">About</h5>
+          <a href="info.html?p=about" data-i18n="foot.aboutus">About us</a>
+          <a href="info.html?p=careers" data-i18n="foot.careers">Careers</a>
+          <a href="info.html?p=press" data-i18n="foot.press">Press</a></div>
+        <div class="footer__col"><h5 data-i18n="foot.help">Help</h5>
+          <a href="info.html?p=safety" data-i18n="foot.safety">Safety tips</a>
+          <a href="info.html?p=contact" data-i18n="foot.contact">Contact us</a>
+          <a href="info.html?p=faq" data-i18n="foot.faq">FAQ</a></div>
+        <div class="footer__col"><h5 data-i18n="foot.legal">Legal</h5>
+          <a href="info.html?p=terms" data-i18n="foot.terms">Terms</a>
+          <a href="info.html?p=privacy" data-i18n="foot.privacy">Privacy</a>
+          <a href="info.html?p=cookies" data-i18n="foot.cookies">Cookies</a></div>
+        <div class="footer__col"><h5 data-i18n="cat.heading">Categories</h5>
+          <a href="browse.html?group=vehicles" data-i18n="cat.vehicles">Vehicles</a>
+          <a href="browse.html?group=property" data-i18n="group.property">Property</a>
+          <a href="browse.html?group=jobs" data-i18n="group.jobs">Jobs</a></div>
+      </div>
+      <div class="footer__bottom"><span data-i18n="foot.rights">© 2026 AmaarBazaar. All rights reserved. Made in Bangladesh 🇧🇩</span></div>
+    </div>`;
+  }
+  function initFooter(){ $$('[data-full-footer]').forEach(f => { f.innerHTML = footerHTML(); }); }
+
+  /* ---- static info pages (about, careers, terms, …) rendered into info.html ---- */
+  function initInfoPage(){
+    const host = $('#infoContent'); if(!host) return;
+    if(typeof SITE_CONTENT === 'undefined') return;
+    const params = new URLSearchParams(location.search);
+    let slug = params.get('p') || 'about';
+    if(!SITE_CONTENT[slug]) slug = 'about';
+    function wireContact(){
+      const form = $('#contactForm'); if(!form) return;
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = ($('#cfName').value||'').trim();
+        const email = ($('#cfEmail').value||'').trim();
+        const msg = ($('#cfMsg').value||'').trim();
+        const err = $('#cfError'); if(err) err.textContent = '';
+        if(!name || !email || !msg){ if(err) err.textContent = I18nStore.lang==='bn'?'অনুগ্রহ করে সব ঘর পূরণ করুন।':'Please fill in all fields.'; return; }
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ if(err) err.textContent = I18nStore.get('auth.err_email'); return; }
+        if(window.Store && Store.sendEmail) Store.sendEmail('hello@amaarbazaar.com', 'Contact form — '+name, msg+'\n\nReply to: '+email);
+        form.reset();
+        toast(I18nStore.lang==='bn'?'বার্তা পাঠানো হয়েছে — ধন্যবাদ!':'Message sent — thank you!');
+      });
+    }
+    function paint(){
+      const lang = I18nStore.lang;
+      const c = SITE_CONTENT[slug];
+      const title = c.title[lang] || c.title.en;
+      document.title = title + ' — AmaarBazaar';
+      const h1 = $('#infoTitle'); if(h1) h1.textContent = title;
+      host.innerHTML = c.html[lang] || c.html.en;
+      const cr = $('#crumbs');
+      if(cr) cr.innerHTML = `<a href="index.html">${I18nStore.get('crumb.home')}</a><span class="crumbs__sep">›</span><span class="crumbs__cur">${title}</span>`;
+      wireContact();
+    }
+    paint();
+    document.addEventListener('langchange', paint);
+  }
+
   function currentUserName(){
     try { return (window.AmaarAuth && AmaarAuth.currentUser() && AmaarAuth.currentUser().username) || '_guest'; }
     catch(e){ return '_guest'; }
@@ -824,6 +899,7 @@
     initLang(); populateCategorySelects(); initNav(); renderCategories(); renderFeatured();
     initReveal(); initCounters(); initSearch(); initGeo();
     initBrowse(); initPost(); initPaymentModal(); ensureListingModal();
+    initFooter(); initInfoPage();
     // keep every screen in sync when the store changes (admin edits, new posts, etc.)
     if(window.Store) Store.on(() => { populateCategorySelects(); renderCategories(); renderFeatured(); });
     // re-apply translations to freshly rendered nodes

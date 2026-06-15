@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e8e8a">
+<title>AmaarBazaar</title>
+<meta name="description" content="AmaarBazaar — about us, help, safety and legal information.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=8">
+</head>
+<body>
+
+<header class="nav scrolled">
+  <div class="container nav__bar">
+    <a href="index.html" class="logo">
+      <span class="logo__mark"><svg class="lily" viewBox="0 0 48 48" aria-hidden="true"><g fill="#fff"><path d="M24 34C16 25 16 14 24 6 32 14 32 25 24 34Z" opacity=".5" transform="rotate(-70 24 34)"/><path d="M24 34C16 25 16 14 24 6 32 14 32 25 24 34Z" opacity=".5" transform="rotate(70 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(-46 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(-23 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(23 24 34)"/><path d="M24 34C20 25 21 15 24 8 27 15 28 25 24 34Z" transform="rotate(46 24 34)"/></g><circle cx="24" cy="31.5" r="3" fill="#f5a623"/></svg></span>
+      <span><span class="logo__text">Amaar<b>Bazaar</b></span><br>
+      <span class="nav__tagline" data-i18n="brand.tagline">Bangladesh's Marketplace</span></span>
+    </a>
+    <nav class="nav__links">
+      <a href="browse.html" class="nav__link" data-i18n="nav.browse">Browse</a>
+      <div class="nav__cats">
+        <a href="index.html#categories" class="nav__link" data-i18n="nav.categories">Categories</a><span class="caret"> ▾</span>
+        <div class="mega" id="megaPanel"></div>
+      </div>
+      <a href="index.html#how" class="nav__link" data-i18n="nav.how">How it works</a>
+      <a href="browse.html?fav=1" class="nav__link" data-i18n="nav.saved">❤ Saved</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="lang-toggle" data-lang-toggle>🌐 <span data-i18n="lang.toggle">বাংলা</span></button>
+      <a href="#" class="nav__link" data-i18n="nav.login">Log in</a>
+      <a href="post.html" class="btn btn--primary" data-i18n="nav.post">Post an Ad</a>
+      <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+<nav class="nav__mobile">
+  <a href="browse.html" data-i18n="nav.browse">Browse</a>
+  <a href="index.html#categories" data-i18n="nav.categories">Categories</a>
+  <a href="index.html#how" data-i18n="nav.how">How it works</a>
+  <a href="#" data-i18n="nav.login">Log in</a>
+  <a href="post.html" class="btn btn--primary" style="margin-top:1rem;justify-content:center" data-i18n="nav.post">Post an Ad</a>
+</nav>
+
+<section class="page-top page-top--info">
+  <div class="container page-top__inner">
+    <nav class="crumbs crumbs--light" id="crumbs" aria-label="Breadcrumb"></nav>
+    <h1 id="infoTitle">AmaarBazaar</h1>
+  </div>
+</section>
+
+<main class="container">
+  <article class="info-page" id="infoContent"></article>
+</main>
+
+<footer class="footer" data-full-footer></footer>
+
+<script src="js/i18n.js?v=8"></script>
+<script src="js/data.js?v=8"></script>
+<script src="js/content.js?v=8"></script>
+<script src="js/store.js?v=8"></script>
+<script src="js/auth.js?v=8"></script>
+<script src="js/app.js?v=8"></script>
+</body>
+</html>
