@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
 
@@ -42,12 +42,11 @@
   <a href="post.html" class="btn btn--primary" style="margin-top:1rem;justify-content:center" data-i18n="nav.post">Post an Ad</a>
 </nav>
 
-<section class="page-top">
-  <div class="container page-top__inner">
-    <h1 data-i18n="browse.title">Browse listings</h1>
-    <p data-i18n="cat.sub">Thousands of listings across every category you can imagine.</p>
+<div class="browse-bar">
+  <div class="container">
+    <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"><a href="index.html" data-i18n="crumb.home">Home</a></nav>
   </div>
-</section>
+</div>
 
 <div class="container">
   <div class="browse-wrap">
@@ -90,7 +89,7 @@
           </select>
         </div>
       </div>
-      <div class="listing-grid" id="browseGrid"></div>
+      <div class="listing-list" id="browseGrid"></div>
     </main>
 
     <!-- Advertisement side space -->
@@ -119,10 +118,10 @@
   </div>
 </footer>
 
-<script src="js/i18n.js?v=6"></script>
-<script src="js/data.js?v=6"></script>
-<script src="js/store.js?v=6"></script>
-<script src="js/auth.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/i18n.js?v=7"></script>
+<script src="js/data.js?v=7"></script>
+<script src="js/store.js?v=7"></script>
+<script src="js/auth.js?v=7"></script>
+<script src="js/app.js?v=7"></script>
 </body>
 </html>

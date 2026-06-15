@@ -244,6 +244,10 @@ const I18N = {
     "browse.reset": "Reset",
     "browse.results": "listings found",
     "browse.empty": "No listings match your filters. Try widening your search.",
+    "crumb.home": "Home",
+    "card.private": "Private",
+    "card.trade": "Trade",
+    "card.photos": "photos",
 
     "post.title": "Post an Ad",
     "post.sub": "Reach thousands of buyers across Bangladesh. It's free to start.",
@@ -555,6 +559,10 @@ const I18N = {
     "browse.reset": "রিসেট",
     "browse.results": "টি বিজ্ঞাপন পাওয়া গেছে",
     "browse.empty": "আপনার ফিল্টারে কোনো বিজ্ঞাপন মেলেনি। অনুসন্ধান প্রসারিত করুন।",
+    "crumb.home": "হোম",
+    "card.private": "ব্যক্তিগত",
+    "card.trade": "ট্রেড",
+    "card.photos": "ছবি",
 
     "post.title": "বিজ্ঞাপন দিন",
     "post.sub": "সারা বাংলাদেশের হাজারো ক্রেতার কাছে পৌঁছান। শুরু করা ফ্রি।",

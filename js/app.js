@@ -231,6 +231,54 @@
         </div>
       </article>`;
   }
+  /* ---- Gumtree-style horizontal list-row card (browse results) ---- */
+  function cardRowHTML(l, i = 0){
+    const lang = I18nStore.lang;
+    const title = l.title[lang] || l.title.en;
+    const loc = l.loc[lang] || l.loc.en;
+    const days = lang === 'bn' ? toBnNum(l.days) : l.days;
+    const ago = lang === 'bn' ? `${days} দিন আগে` : `${days}d ago`;
+    const seller = l.seller || (l.id % 3 === 0 ? 'trade' : 'private');
+    const sellerLabel = I18nStore.get(seller === 'trade' ? 'card.trade' : 'card.private');
+    const nimg = (l.imgs && l.imgs.length) ? l.imgs.length : 1;
+    return `
+      <article class="card card--row" data-id="${l.id}" style="--i:${i % 8}" tabindex="0">
+        <div class="card__media">
+          <img src="${(l.imgs && l.imgs[0]) || l.img}" alt="${title}" loading="lazy">
+          <div class="card__shine"></div>
+          ${l.featured ? `<span class="card__badge" data-i18n="feat.featured">${I18nStore.get('feat.featured')}</span>`:''}
+          ${l.video ? `<span class="card__videoflag">▶</span>`:''}
+          <span class="card__count">📷 ${nimg}</span>
+        </div>
+        <div class="card__body">
+          <button class="card__fav" aria-label="Save">♡</button>
+          <div class="card__title">${title}</div>
+          <div class="card__seller">${sellerLabel}</div>
+          <div class="card__loc">📍 ${loc}</div>
+          <div class="card__price" data-price="${l.price}">${I18nStore.fmtPrice(l.price)}</div>
+          <div class="card__rowmeta"><span class="card__view"><span data-i18n="feat.view">View details</span> →</span><span>${ago}</span></div>
+        </div>
+      </article>`;
+  }
+
+  /* ---- breadcrumb (Home / Group / Category) for the browse page ---- */
+  function renderCrumbs(f){
+    const el = $('#crumbs'); if(!el) return;
+    const parts = [`<a href="index.html">${I18nStore.get('crumb.home')}</a>`];
+    let groupSlug = f.group;
+    if(f.cat && window.Store && !groupSlug) groupSlug = Store.findGroupOfCat(f.cat);
+    if(groupSlug){
+      const gk = 'group.' + groupSlug;
+      const gname = I18nStore.get(gk) !== gk ? I18nStore.get(gk) : groupSlug;
+      parts.push(`<a href="browse.html?group=${groupSlug}">${gname}</a>`);
+    }
+    if(f.cat){
+      const cname = window.Store ? Store.catNameById(f.cat) : f.cat;
+      parts.push(`<span class="crumbs__cur">${cname}</span>`);
+    }
+    el.innerHTML = parts.join('<span class="crumbs__sep">›</span>');
+  }
+
   function currentUserName(){
     try { return (window.AmaarAuth && AmaarAuth.currentUser() && AmaarAuth.currentUser().username) || '_guest'; }
     catch(e){ return '_guest'; }
@@ -429,7 +477,8 @@
 
       const count = $('#browseCount');
       if(count){ const n = I18nStore.lang==='bn'?toBnNum(items.length):items.length; count.innerHTML = `<b>${n}</b> <span data-i18n="browse.results">${I18nStore.get('browse.results')}</span>`; }
-      grid.innerHTML = items.length ? items.map(cardHTML).join('')
+      renderCrumbs(f);
+      grid.innerHTML = items.length ? items.map(cardRowHTML).join('')
         : `<div class="browse-empty" data-i18n="browse.empty">${I18nStore.get('browse.empty')}</div>`;
       wireCards(grid);
     }
